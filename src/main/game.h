@@ -8,6 +8,9 @@
 
 #define FBW 64
 #define FBH 36
+#define TILESIZE 4
+#define COLC 16
+#define ROWC 9
 
 #define MODE_HELLO 1
 #define MODE_PLAY 2
@@ -23,6 +26,7 @@ extern struct g {
   struct r1b_img32 fbimg;
   
   struct r1b_img1 img_title;
+  struct r1b_img1 img_graphics;
   
   // MODE_HELLO
   struct ui_menu menu;
@@ -47,7 +51,7 @@ int text_render(struct r1b_img32 *dst,int dstx,int dsty,const char *src,int srcc
 // Width, not including the final gap.
 int text_measure(const char *src,int srcc);
 
-int reset_game();
+int game_reset();
 void game_update(double elapsed,int input);
 void game_render();
 

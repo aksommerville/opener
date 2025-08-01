@@ -14,7 +14,7 @@ void shm_quit(int status) {
  */
  
 static void cb_play(struct ui_menu_option *option) {
-  if (reset_game()<0) sh_term(1);
+  if (game_reset()<0) sh_term(1);
   g.mode=MODE_PLAY;
 }
  
@@ -61,8 +61,13 @@ int shm_init() {
   g.music_enable=1;//TODO persist, and if initially zero, notify audio thread
   g.sound_enable=1;
   
-  g.mode=MODE_HELLO;
-  SONG(hello)
+  if (1) {
+    g.mode=MODE_HELLO;
+    SONG(hello)
+  } else { // TEMP: Launch right into game.
+    if (game_reset()<0) return -1;
+    g.mode=MODE_PLAY;
+  }
   
   g.menu.dsty=22;
   ui_menu_add(&g.menu,"Play",4,0xffffffff,cb_play);

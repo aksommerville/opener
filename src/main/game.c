@@ -1,9 +1,12 @@
 #include "game.h"
 
+extern const unsigned int palette[];
+extern const unsigned char m2[];
+
 /* Reset entire session.
  */
  
-int reset_game() {
+int game_reset() {
   //TODO
   return 0;
 }
@@ -11,14 +14,52 @@ int reset_game() {
 /* Update.
  */
  
+//XXX
+static double animclock=0.0;
+static int animframe=0;
+static double turnclock=0.0;
+static uint8_t xform=0;
+ 
 void game_update(double elapsed,int input) {
   //TODO
+  if ((animclock-=elapsed)<=0.0) {
+    animclock+=0.200;
+    if (++animframe>=4) animframe=0;
+  }
+  if ((turnclock-=elapsed)<=0.0) {
+    turnclock+=2.000;
+    xform^=R1B_XFORM_XREV;
+  }
 }
 
 /* Render.
  */
  
 void game_render() {
-  r1b_img32_fill_rect(&g.fbimg,0,0,FBW,FBH,0xff008000);
+  //r1b_img32_fill_rect(&g.fbimg,0,0,FBW,FBH,0xff000000);
+  
+  const unsigned char *map=m2;
+  int dsty=0;
+  for (;dsty<FBH;dsty+=TILESIZE) {
+    int dstx=0;
+    for (;dstx<FBW;dstx+=TILESIZE,map++) {
+      int palp=(*map)>>5;
+      palp<<=1;
+      uint32_t bg=palette[palp];
+      uint32_t fg=palette[palp+1];
+      uint8_t tileid=(*map)&0x1f;
+      int srcx=(tileid&7)*TILESIZE;
+      int srcy=(tileid>>3)*TILESIZE;
+      r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,dstx,dsty,srcx,srcy,TILESIZE,TILESIZE,bg,fg,0);
+    }
+  }
+  
+  int srcx=32;
+  if (g.pvinput&SH_BTN_SOUTH) srcx+=24;
+  else switch (animframe) {
+    case 1: srcx+=8; break;
+    case 3: srcx+=16; break;
+  }
+  r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,20,10,srcx,0,8,8,0,0xffff40a0,xform);
   //TODO
 }

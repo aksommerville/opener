@@ -1,7 +1,8 @@
 #include "game.h"
 
 #define IMG_FOR_EACH \
-  _(title)
+  _(title) \
+  _(graphics)
   
 #define _(tag) \
   extern const int tag##_w; \
