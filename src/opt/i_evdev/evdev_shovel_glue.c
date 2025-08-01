@@ -160,6 +160,7 @@ static struct kmap { int keycode,plrid,btnid,value; } kmapv[]={
   {0x00070015,2,SH_BTN_AUX1},    // r
   {0x00070016,2,SH_BTN_DOWN},    // s
   {0x0007001a,2,SH_BTN_UP},      // w
+  {0x0007001d,1,SH_BTN_SOUTH},   // z, alias for 1:SOUTH
   {0x00070028,1,SH_BTN_AUX1},    // enter
   {0x0007002c,2,SH_BTN_SOUTH},   // space
   {0x00070036,1,SH_BTN_SOUTH},   // comma

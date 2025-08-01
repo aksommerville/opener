@@ -32,8 +32,8 @@ static int text_render_char(struct r1b_img32 *dst,int dstx,int dsty,uint16_t src
 /* Render text.
  */
  
-void text_render(struct r1b_img32 *dst,int dstx,int dsty,const char *src,int srcc,uint32_t xbgr) {
-  if (!src) return;
+int text_render(struct r1b_img32 *dst,int dstx,int dsty,const char *src,int srcc,uint32_t xbgr) {
+  if (!src) return 0;
   if (srcc<0) { srcc=0; while (src[srcc]) srcc++; }
   int dstx0=dstx;
   uint32_t xbgr0=xbgr;
@@ -86,4 +86,39 @@ void text_render(struct r1b_img32 *dst,int dstx,int dsty,const char *src,int src
     dstx+=text_render_char(dst,dstx,dsty,font[codepoint-0x20],xbgr);
     dstx++;
   }
+  return dstx-dstx0;
+}
+
+/* Measure string.
+ */
+ 
+int text_measure(const char *src,int srcc) {
+  int w=0,srcp=0;
+  while (srcp<srcc) {
+    int codepoint=(unsigned char)src[srcp++];
+    if (codepoint==0x0a) {
+      w=0;
+      continue;
+    }
+    if (codepoint==0x0c) {
+      while ((srcp<srcc)&&(src[srcp++]!=')')) ; // assume that color escapes are well-formed; incorrect results if not
+      continue;
+    }
+    if ((codepoint<0x20)||(codepoint>0x7f)) {
+      w+=4;
+      continue;
+    }
+    uint16_t glyph=font[codepoint-0x20];
+    if (!glyph) {
+      w+=4;
+    } else if (glyph&0x1249) {
+      w+=4;
+    } else if (glyph&0x2492) {
+      w+=3;
+    } else {
+      w+=2;
+    }
+  }
+  if (w) w--;
+  return w;
 }

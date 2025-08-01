@@ -51,8 +51,9 @@ I'll be doing (GDEX Jam 2025)[https://itch.io/jam/gdex-game-jam-2025] at the sam
 - [ ] Game over. Win only, you play until you win or give up.
 - [ ] Dialogue.
 - [ ] Proper maps and graphics.
-- [ ] Hello modal.
+- [x] Hello modal.
 - [ ] Music.
 - [ ] Sound effects.
 - [ ] genioc_main.c:genioc_store_load,genioc_store_save: Implement if we need, and copy back to shovel.
 - [ ] Eliminate AUX1-to-quit before release. (and provide a friendlier option).
+- [ ] `evdev_shovel_glue.c`: Still have hard-coded devices. Implement general mapping and copy back to shovel. (native only, so not a big deal).
