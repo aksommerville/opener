@@ -53,5 +53,5 @@ I'll be doing (GDEX Jam 2025)[https://itch.io/jam/gdex-game-jam-2025] at the sam
 - [ ] Proper maps and graphics.
 - [ ] Hello modal.
 - [ ] Music.
-- - [ ] Remove the three example songs (all used before): meadowlark, red_alarm, we_need_norris
 - [ ] Sound effects.
+- [ ] genioc_main.c:genioc_store_load,genioc_store_save: Implement if we need, and copy back to shovel.

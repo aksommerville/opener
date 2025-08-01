@@ -1,4 +1,5 @@
 #include "genioc_internal.h"
+#include "main/game.h"
 #include <signal.h>
 #include <unistd.h>
 
@@ -67,7 +68,7 @@ static int genioc_init(int argc,char **argv) {
   if ((err=genioc_store_load())<0) return err;
   {
     struct io_audio_setup setup={
-      .rate=44100,//TODO
+      .rate=44100,
       .chanc=2,
       .device=0,
       .buffer=0,
@@ -81,10 +82,10 @@ static int genioc_init(int argc,char **argv) {
     struct io_video_setup setup={
       .w=0,
       .h=0,
-      .fbw=160,//TODO is this knowable?
-      .fbh=90,
+      .fbw=FBW,
+      .fbh=FBH,
       .fullscreen=0,
-      .title="TODO: Game title",
+      .title="Opener of Cages",
       .iconrgba=0,
       .iconw=0,
       .iconh=0,
@@ -175,7 +176,6 @@ static int genioc_update() {
  */
  
 int genioc_store_load() {
-  fprintf(stderr,"TODO %s\n",__func__);
   return 0;
 }
 
@@ -183,7 +183,6 @@ int genioc_store_load() {
  */
  
 int genioc_store_save() {
-  fprintf(stderr,"TODO %s\n",__func__);
   return 0;
 }
 
