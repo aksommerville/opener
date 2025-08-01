@@ -15,6 +15,10 @@
 #define MODE_HELLO 1
 #define MODE_PLAY 2
 
+extern const unsigned int palette[16]; // 8 (bg,fg) pairs.
+extern const int mapw,maph;
+extern const unsigned char map_data[];
+
 extern struct g {
 
   int pvinput;

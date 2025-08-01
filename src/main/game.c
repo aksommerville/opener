@@ -36,9 +36,9 @@ void game_update(double elapsed,int input) {
  */
  
 void game_render() {
-  //r1b_img32_fill_rect(&g.fbimg,0,0,FBW,FBH,0xff000000);
+  r1b_img32_fill_rect(&g.fbimg,0,0,FBW,FBH,0xff000000);
   
-  const unsigned char *map=m2;
+  const unsigned char *map=map_data;
   int dsty=0;
   for (;dsty<FBH;dsty+=TILESIZE) {
     int dstx=0;
@@ -67,7 +67,9 @@ void game_render() {
     case 3: srcx+=16; break;
   }
   int dstx=xform?18:38;
-  r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,dstx,10,srcx,0,8,8,0,0xffff40a0,xform);
+  r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,dstx,10,srcx,0,8,8,0,0xffa02050,xform);
+  r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,dstx,10,64,  0,8,8,0,0xffa0c0f0,xform);
+  r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,dstx,10,72,  0,8,8,0,0xff1010c0,xform);
   int i=0; for (;i<4;i++) {
     if (xform) dstx+=9; else dstx-=9;
     srcx=32+i*24;
