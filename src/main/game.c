@@ -54,12 +54,28 @@ void game_render() {
     }
   }
   
+  const uint32_t animal_colors[4]={
+    0xff2fabea, // lion
+    0xff2c5b7c, // bear
+    0xffcabba7, // elephant
+    0xff137bd9, // orangutan
+  };
   int srcx=32;
   if (g.pvinput&SH_BTN_SOUTH) srcx+=24;
   else switch (animframe) {
     case 1: srcx+=8; break;
     case 3: srcx+=16; break;
   }
-  r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,20,10,srcx,0,8,8,0,0xffff40a0,xform);
+  int dstx=xform?18:38;
+  r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,dstx,10,srcx,0,8,8,0,0xffff40a0,xform);
+  int i=0; for (;i<4;i++) {
+    if (xform) dstx+=9; else dstx-=9;
+    srcx=32+i*24;
+    switch (animframe) {
+      case 1: srcx+=8; break;
+      case 3: srcx+=16; break;
+    }
+    r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,dstx,10,srcx,8,8,8,0,animal_colors[i],xform);
+  }
   //TODO
 }

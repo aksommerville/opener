@@ -36,6 +36,8 @@ I'll be doing (GDEX Jam 2025)[https://itch.io/jam/gdex-game-jam-2025] at the sam
 
 - [x] Using a 3x5 font, so store them glyphwise in 16 bits each.
 - [ ] Map format and loader.
+- - [ ] Change it to use just one map, and scroll freely.
+- [ ] Map editor.
 - [ ] Render maps.
 - [ ] Sprites, generically.
 - [ ] Transitions.
