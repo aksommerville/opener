@@ -2,18 +2,19 @@
 
 struct g g={0};
 
+int init_images();
+
 /* Quit.
  */
  
 void shm_quit(int status) {
-  sh_log("shm_quit");
 }
 
 /* Init.
  */
 
 int shm_init() {
-  sh_log("shm_init");
+  if (init_images()<0) return -1;
   return 0;
 }
 
@@ -30,6 +31,14 @@ void shm_update(double elapsed) {
   
   //TODO Update model.
   //TODO Render.
+  r1b_img32_fill_rect(&g.fbimg,0,0,FBW,FBH,0xff000000);
+  r1b_img32_blit_img1(&g.fbimg,&g.img_title,
+    (FBW>>1)-(g.img_title.w>>1),1,
+    0,0,g.img_title.w,g.img_title.h,
+    0x00000000,0xff0080ff,0
+  );
+  text_render(&g.fbimg,10,23,"\x0c(ff0)<\x0c()   Play   \x0c(ff0)>\x0c()",-1,0xffffffff);
+  text_render(&g.fbimg,1,30,"TODO: Animate",-1,0xff808080);
   sh_fb(g.fb, FBW, FBH);
 }
 

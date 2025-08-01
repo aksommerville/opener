@@ -9,8 +9,23 @@
 #define FBH 36
 
 extern struct g {
+
   int pvinput;
+  
   uint32_t fb[FBW*FBH];
+  struct r1b_img32 fbimg;
+  
+  struct r1b_img1 img_title;
 } g;
+
+/* Draw text into a 32-bit framebuffer.
+ * (dstx,dsty) is the top-left corner of the first glyph.
+ * "\n" starts a new line. We don't wrap automatically.
+ * Change foreground color temporarily with "\x0c(RGB)", where RGB is three hex digits. "\x0c()" to reset.
+ * Text is strictly 8-bit. If you give us UTF-8 or something, we'll still print it bytewise.
+ * Bytes outside 0x20..0x7f produce a space.
+ * Text is not strictly monospaced; glyphs can have a width of 1, 2, or 3 pixels.
+ */
+void text_render(struct r1b_img32 *dst,int dstx,int dsty,const char *src,int srcc,uint32_t xbgr);
 
 #endif

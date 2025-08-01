@@ -34,7 +34,7 @@ I'll be doing (GDEX Jam 2025)[https://itch.io/jam/gdex-game-jam-2025] at the sam
 
 ## TODO
 
-- [ ] Using a 3x5 font, so store them glyphwise in 16 bits each.
+- [x] Using a 3x5 font, so store them glyphwise in 16 bits each.
 - [ ] Map format and loader.
 - [ ] Render maps.
 - [ ] Sprites, generically.
@@ -55,3 +55,4 @@ I'll be doing (GDEX Jam 2025)[https://itch.io/jam/gdex-game-jam-2025] at the sam
 - [ ] Music.
 - [ ] Sound effects.
 - [ ] genioc_main.c:genioc_store_load,genioc_store_save: Implement if we need, and copy back to shovel.
+- [ ] Eliminate AUX1-to-quit before release. (and provide a friendlier option).
