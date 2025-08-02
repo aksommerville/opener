@@ -39,7 +39,7 @@ extern struct g {
 
 //TODO audio
 #define SFX(tag) ;
-#define SONG(tag) ;
+#define SONG(tag) sh_ms("\x02\x01",2);
 
 /* Draw text into a 32-bit framebuffer.
  * (dstx,dsty) is the top-left corner of the first glyph.
