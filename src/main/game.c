@@ -7,37 +7,105 @@ extern const unsigned char m2[];
  */
  
 int game_reset() {
-  //TODO
   SONG(across_the_scrubby_moors)
+  g.spritec=0;
+  g.camerax=0;
+  g.cameray=0;
+  if (!(g.hero=sprite_spawn(&sprite_type_hero,10.0,5.0,0))) return -1;
+  sprite_spawn(&sprite_type_animal, 6.0,6.0,0x00);//XXX TEMP
+  sprite_spawn(&sprite_type_animal, 6.0,2.0,0x05);//XXX TEMP
+  sprite_spawn(&sprite_type_animal,10.0,6.0,0x0a);//XXX TEMP
+  sprite_spawn(&sprite_type_animal,11.0,1.0,0x0f);//XXX TEMP
+  
+  /* It shouldn't matter, but initialize (heropath) with the current position.
+   * Shouldn't matter because you don't start with any animals, by the time you find one, we'll have repopulated the path.
+   */
+  struct pathpos *pathpos=g.heropath;
+  int i=HEROPATH_LIMIT;
+  for (;i-->0;pathpos++) {
+    pathpos->x=g.hero->x;
+    pathpos->y=g.hero->y;
+  }
+  g.heropathp=0;
+  
   return 0;
+}
+
+/* Spawn sprite.
+ */
+ 
+struct sprite *sprite_spawn(const struct sprite_type *type,double x,double y,uint32_t arg) {
+  struct sprite *sprite=0;
+  if (g.spritec<SPRITE_LIMIT) {
+    sprite=g.spritev+g.spritec++;
+  } else {
+    struct sprite *q=g.spritev;
+    int i=g.spritec;
+    for (;i-->0;q++) {
+      if (q->defunct) {
+        sprite=q;
+        break;
+      }
+    }
+    if (!sprite) return 0;
+  }
+  memset(sprite,0,sizeof(struct sprite));
+  sprite->type=type;
+  sprite->x=x;
+  sprite->y=y;
+  sprite->arg=arg;
+  sprite->fg=0xffffffff;
+  if (type->init&&(type->init(sprite)<0)) {
+    sprite->defunct=1;
+    return 0;
+  }
+  return sprite;
 }
 
 /* Update.
  */
  
-//XXX
-static double animclock=0.0;
-static int animframe=0;
-static double turnclock=0.0;
-static uint8_t xform=0;
- 
-void game_update(double elapsed,int input) {
-  //TODO
-  if ((animclock-=elapsed)<=0.0) {
-    animclock+=0.200;
-    if (++animframe>=4) animframe=0;
+void game_update(double elapsed) {
+
+  /* Locate the key sprites.
+   */
+  g.hero=0;
+  struct sprite *sprite=g.spritev;
+  int i=g.spritec;
+  for (;i-->0;sprite++) {
+    if (sprite->defunct) continue;
+    if (sprite->type==&sprite_type_hero) g.hero=sprite;
   }
-  if ((turnclock-=elapsed)<=0.0) {
-    turnclock+=2.000;
-    xform^=R1B_XFORM_XREV;
+
+  /* Update sprites.
+   */
+  for (sprite=g.spritev,i=g.spritec;i-->0;sprite++) {
+    if (sprite->defunct) continue;
+    if (!sprite->type->update) continue;
+    sprite->type->update(sprite,elapsed);
   }
-  switch (input&(SH_BTN_LEFT|SH_BTN_RIGHT)) {
-    case SH_BTN_LEFT: if (--(g.camerax)<0) g.camerax=0; break;
-    case SH_BTN_RIGHT: if (++(g.camerax)>mapw*TILESIZE-FBW) g.camerax=mapw*TILESIZE-FBW; break;
+  
+  /* Global update logic.
+   */
+  //TODO termination
+  
+  /* Select a new camera position, if there's a hero.
+   * No hero, whatever, leave it wherever it is.
+   */
+  if (g.hero) {
+    g.camerax=(int)(g.hero->x*TILESIZE+0.5)-(FBW>>1);
+    g.cameray=(int)(g.hero->y*TILESIZE+0.5)-(FBH>>1);
+    if (g.camerax<0) g.camerax=0; else if (g.camerax+FBW>mapw*TILESIZE) g.camerax=mapw*TILESIZE-FBW;
+    if (g.cameray<0) g.cameray=0; else if (g.cameray+FBH>maph*TILESIZE) g.cameray=maph*TILESIZE-FBH;
   }
-  switch (input&(SH_BTN_UP|SH_BTN_DOWN)) {
-    case SH_BTN_UP: if (--(g.cameray)<0) g.cameray=0; break;
-    case SH_BTN_DOWN: if (++(g.cameray)>maph*TILESIZE-FBH) g.cameray=maph*TILESIZE-FBH; break;
+  
+  /* Drop defunct sprites.
+   */
+  for (i=g.spritec,sprite=g.spritev+g.spritec-1;i-->0;sprite--) {
+    if (!sprite->defunct) continue;
+    if (sprite->type->del) sprite->type->del(sprite);
+    g.spritec--;
+    memmove(sprite,sprite+1,sizeof(struct sprite)*(g.spritec-i));
   }
 }
 
@@ -45,7 +113,34 @@ void game_update(double elapsed,int input) {
  */
  
 void game_render() {
+
+  /* One pass of a cocktail sort on the sprite list.
+   * That means a pass upward and a pass downward, if the first pass strikes.
+   * So we can guarantee that if only one sprite is out of place, we'll definitely complete the sort.
+   * Multiple sprites out of place, we might remain missorted for a few frames.
+   */
+  if (g.spritec>1) {
+    int i,more=0;
+    for (i=0;i<g.spritec-1;i++) {
+      if (sprite_rendercmp(g.spritev+i,g.spritev+i+1)>0) {
+        struct sprite tmp=g.spritev[i];
+        g.spritev[i]=g.spritev[i+1];
+        g.spritev[i+1]=tmp;
+        more=1;
+      }
+    }
+    if (more) {
+      for (i=g.spritec-1;i-->1;) {
+        if (sprite_rendercmp(g.spritev+i,g.spritev+i-1)<0) {
+          struct sprite tmp=g.spritev[i];
+          g.spritev[i]=g.spritev[i+1];
+          g.spritev[i+1]=tmp;
+        }
+      }
+    }
+  }
   
+  // Map.
   int cola=g.camerax/TILESIZE; if (cola<0) cola=0;
   int rowa=g.cameray/TILESIZE; if (rowa<0) rowa=0;
   int colz=(g.camerax+FBW-1)/TILESIZE; if (colz>=mapw) colz=mapw-1;
@@ -72,30 +167,29 @@ void game_render() {
     }
   }
   
-  const uint32_t animal_colors[4]={
-    0xff2fabea, // lion
-    0xff2c5b7c, // bear
-    0xffcabba7, // elephant
-    0xff137bd9, // orangutan
-  };
-  int srcx=32;
-  if (g.pvinput&SH_BTN_SOUTH) srcx+=24;
-  else switch (animframe) {
-    case 1: srcx+=8; break;
-    case 3: srcx+=16; break;
-  }
-  int dstx=xform?18:38;
-  r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,dstx,10,srcx,0,8,8,0,0xffa02050,xform);
-  r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,dstx,10,64,  0,8,8,0,0xffa0c0f0,xform);
-  r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,dstx,10,72,  0,8,8,0,0xff1010c0,xform);
-  int i=0; for (;i<4;i++) {
-    if (xform) dstx+=9; else dstx-=9;
-    srcx=32+i*24;
-    switch (animframe) {
-      case 1: srcx+=8; break;
-      case 3: srcx+=16; break;
+  // Sprites. There can't be any defunct at this point.
+  struct sprite *sprite=g.spritev;
+  int i=g.spritec;
+  for (;i-->0;sprite++) {
+    int dstx=((int)(sprite->x*TILESIZE+0.5))-g.camerax;
+    int dsty=((int)(sprite->y*TILESIZE+0.5))-g.cameray;
+    if (sprite->type->render) {
+      #define BORDER 10 /* Render if sprite's focus point is this close to the camera. */
+      if (dstx<-BORDER) continue;
+      if (dsty<-BORDER) continue;
+      if (dstx>=FBW+BORDER) continue;
+      if (dsty>=FBH+BORDER) continue;
+      #undef BORDER
+      sprite->type->render(sprite,dstx,dsty);
+    } else {
+      // Generic sprites are double the TILESIZE.
+      if (dstx<-TILESIZE) continue;
+      if (dsty<-TILESIZE) continue;
+      if (dstx>=FBW+TILESIZE) continue;
+      if (dsty>=FBH+TILESIZE) continue;
+      int srcx=(sprite->tileid&15)*(TILESIZE<<1);
+      int srcy=(sprite->tileid>>4)*(TILESIZE<<1);
+      r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,dstx-TILESIZE,dsty-TILESIZE,srcx,srcy,TILESIZE<<1,TILESIZE<<1,sprite->bg,sprite->fg,sprite->xform);
     }
-    r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,dstx,10,srcx,8,8,8,0,animal_colors[i],xform);
   }
-  //TODO
 }

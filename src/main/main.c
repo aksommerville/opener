@@ -86,14 +86,15 @@ int shm_init() {
 
 /* Update.
  */
+ static int slomo=0;//XXX
 
 void shm_update(double elapsed) {
 
   // Gather input, perform global input triggers.
-  int input=sh_in(0);
-  if (input!=g.pvinput) {
-    if ((input&SH_BTN_AUX1)&&!(g.pvinput&SH_BTN_AUX1)) sh_term(0);
-    g.pvinput=input;
+  g.pvinput=g.input;
+  g.input=sh_in(0);
+  if (g.input!=g.pvinput) {
+    if ((g.input&SH_BTN_AUX1)&&!(g.pvinput&SH_BTN_AUX1)) sh_term(0);
   }
   
   // Update per mode, and if mode changes, update again.
@@ -101,11 +102,13 @@ void shm_update(double elapsed) {
   int pvmode=g.mode;
   switch (g.mode) {
     case MODE_HELLO: {
-        ui_menu_update(&g.menu,elapsed,input);
+        ui_menu_update(&g.menu,elapsed);
         ui_newsfeed_update(&g.newsfeed,elapsed);
       } break;
     case MODE_PLAY: {
-        game_update(elapsed,input);
+        //if (slomo) slomo--; else { slomo=10;
+        game_update(elapsed);
+        //}
       } break;
     default: g.mode=MODE_HELLO;
   }
@@ -140,5 +143,39 @@ void *memset(void *s, int n, long c) {
   unsigned char *p=s;
   for (;c-->0;p++) *p=n;
   return s;
+}
+void *memcpy(void *dst,const void *src,unsigned long c) {
+  if (((*(int*)dst)&3)||((*(int*)src)&3)||(c&3)) {
+    char *DST=dst;
+    const char *SRC=src;
+    for (;c-->0;DST++,SRC++) *DST=*SRC;
+  } else {
+    int *DST=dst;
+    const int *SRC=src;
+    c>>=2;
+    for (;c-->0;DST++,SRC++) *DST=*SRC;
+  }
+  return dst;
+}
+void *memmove(void *dst,const void *src,int c) {
+  if (dst<src) {
+    memcpy(dst,src,c);
+  } else {
+    char *DST=(char*)dst+c;
+    const char *SRC=(const char*)src+c;
+    while (c-->0) *(--DST)=*(--SRC);
+  }
+  return dst;
+}
+int memcmp(const void *a,const void *b,int c) {
+  if (a==b) return 0;
+  if (!a) return -1;
+  if (!b) return 1;
+  const unsigned char *A=a,*B=b;
+  for (;c-->0;A++,B++) {
+    int cmp=*A-*B;
+    if (cmp) return cmp;
+  }
+  return 0;
 }
 #endif

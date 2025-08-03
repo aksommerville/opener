@@ -25,14 +25,13 @@ struct ui_menu {
   int optionc;
   int optionp;
   double blinkclock;
-  int pvinput;
   double transition; // -1..0..1 = leftward..idle..rightward
 };
 
 // We borrow (text), you must hold it constant.
 int ui_menu_add(struct ui_menu *menu,const char *text,int textc,uint32_t xbgr,void (*cb)(struct ui_menu_option *option));
 
-void ui_menu_update(struct ui_menu *menu,double elapsed,int input);
+void ui_menu_update(struct ui_menu *menu,double elapsed);
 void ui_menu_render(struct r1b_img32 *dst,struct ui_menu *menu);
 
 /* ui_newsfeed.

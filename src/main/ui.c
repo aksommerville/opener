@@ -40,7 +40,7 @@ static void ui_menu_activate(struct ui_menu *menu) {
 #define MENU_BLINK_PERIOD 0.500
 #define MENU_BLINK_DUTY   0.350
 
-void ui_menu_update(struct ui_menu *menu,double elapsed,int input) {
+void ui_menu_update(struct ui_menu *menu,double elapsed) {
   
   const double TRANSITION_RATE=3.000; // hz
   if (menu->transition<0.0) {
@@ -57,11 +57,10 @@ void ui_menu_update(struct ui_menu *menu,double elapsed,int input) {
     menu->blinkclock+=MENU_BLINK_PERIOD;
   }
   
-  if (input!=menu->pvinput) {
-    if ((input&SH_BTN_LEFT)&&!(menu->pvinput&SH_BTN_LEFT)) ui_menu_move(menu,-1);
-    if ((input&SH_BTN_RIGHT)&&!(menu->pvinput&SH_BTN_RIGHT)) ui_menu_move(menu,1);
-    if ((input&SH_BTN_SOUTH)&&!(menu->pvinput&SH_BTN_SOUTH)) ui_menu_activate(menu);
-    menu->pvinput=input;
+  if (g.input!=g.pvinput) {
+    if ((g.input&SH_BTN_LEFT)&&!(g.pvinput&SH_BTN_LEFT)) ui_menu_move(menu,-1);
+    if ((g.input&SH_BTN_RIGHT)&&!(g.pvinput&SH_BTN_RIGHT)) ui_menu_move(menu,1);
+    if ((g.input&SH_BTN_SOUTH)&&!(g.pvinput&SH_BTN_SOUTH)) ui_menu_activate(menu);
   }
 }
 
