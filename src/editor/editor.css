@@ -17,6 +17,72 @@ body {
   border-bottom: 1px solid #000;
 }
 
+.tattle {
+  background-color: #000;
+  color: #ff0;
+  font-family: monospace;
+  text-align: center;
+  width: 60px;
+}
+
 canvas#visual {
   flex: 1;
+  image-rendering: pixelated;
+  object-fit: contain;
+}
+
+dialog.palette {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+dialog.palette > .left {
+  display: flex;
+  flex-direction: column;
+}
+
+dialog.palette .colortattle {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #000;
+  display: inline-block;
+  cursor: pointer;
+}
+
+dialog.palette > .right {
+  display: flex;
+  flex-direction: column;
+}
+
+dialog.palette .row {
+  display: flex;
+  flex-direction: row;
+}
+
+dialog.palette canvas.paletteTile {
+  image-rendering: pixelated;
+  width: 32px;
+  height: 32px;
+  border: 2px solid #fff;
+  margin: 4px;
+}
+
+dialog.color {
+  min-width: 300px;
+  min-height: 300px;
+  display: flex;
+  flex-direction: row;
+}
+
+dialog.color .preview {
+  width: 100px;
+  height: 100px;
+  border: 1px solid #000;
+  background-color: #888;
+}
+
+dialog.color > * {
+  display: flex;
+  flex-direction: column;
 }

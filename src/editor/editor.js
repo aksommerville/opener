@@ -1,8 +1,11 @@
-let graphics; // Image
 let originalText; // string
 let palette; // Uint32Array(16), xbgr
 let mapw,maph; // int
 let map_data; // Uint8Array(mapw*maph)
+let imageData; // 4x4, staging area for a single tile
+let paintbrush = 0; // Cell value, ie (colorindex<<5)|tileid.
+let painting = false;
+let lastx=0, lasty=0;
 
 function isident(ch) {
   if ((ch >= 0x30) && (ch <= 0x39)) return true;
@@ -165,12 +168,16 @@ function onOpen(event) {
     parseModel(src);
     console.log(`Acquired file`, { originalText, palette, mapw, maph, map_data });
     render();
+    renderPalette();
   });
 }
 
 function writePalette() {
   let dst = "const unsigned int palette[16]={\n";
-  for (let i=0; i<16; i++) dst += palette[i] + ",";
+  for (let p=0, i=8; i-->0; ) {
+    dst += `0x${palette[p++].toString(16).padStart(8,'0')},`;
+    dst += `0x${palette[p++].toString(16).padStart(8,'0')},\n`;
+  }
   dst += "\n};\n";
   return dst;
 }
@@ -253,24 +260,305 @@ function onSave() {
   URL.revokeObjectURL(url);
 }
 
-function render(canvas) {
-  if (!canvas) canvas = document.getElementById("visual");
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#333";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+function render(canvas, mx, my, mw, mh) {
   if (!map_data) return;
+  if (!canvas) canvas = document.getElementById("visual");
+  if (!mw || !mh) {
+    mx = 0;
+    my = 0;
+    mw = mapw;
+    mh = maph;
+  }
+  const bounds = canvas.getBoundingClientRect();
+  const ctx = canvas.getContext("2d");
+  
+  /* The map is almost certainly smaller than the canvas.
+   * Let's assume it won't grow large enough to need scrolling.
+   * In order to keep the blitting simple, we actually make the canvas's framebuffer the map's natural size.
+   * So we can't do anything high-res on top of the map image.
+   */
+  const tilesize = 4;
+  const wmin = tilesize * mapw;
+  const hmin = tilesize * maph;
+  if ((canvas.width !== wmin) || (canvas.height !== hmin)) {
+    canvas.width = wmin;
+    canvas.height = hmin;
+  }
+  
+  for (let y=my*tilesize, row=my; row<my+mh; row++, y+=tilesize) {
+    for (let x=mx*tilesize, col=mx; col<mx+mw; col++, x+=tilesize) {
+      prepareTile(map_data[row * mapw + col]);
+      ctx.putImageData(imageData, x, y);
+    }
+  }
+}
+
+function prepareTile(src) {
+  if (!imageData) imageData = new ImageData(4, 4);
+  const ix = src >> 5;
+  const bgcolor = palette[ix * 2] || 0xff000000; // xbgr
+  const fgcolor = palette[ix * 2 + 1] || 0xffffffff; // ''
+  const tileid = src & 0x1f;
+  const srcx = (tileid & 7) * 4;
+  const srcy = (tileid >> 3) * 4;
+  for (let suby=0, dstp=0; suby<4; suby++) {
+    for (let subx=0; subx<4; subx++) {
+      const srcp = (srcy + suby) * 32 + (srcx + subx);
+      const xbgr = GRAPHICS[srcp] ? fgcolor : bgcolor;
+      imageData.data[dstp++] = (xbgr & 0xff);
+      imageData.data[dstp++] = (xbgr >> 8) & 0xff;
+      imageData.data[dstp++] = (xbgr >> 16) & 0xff;
+      imageData.data[dstp++] = 0xff;
+    }
+  }
+}
+
+function renderPalette() {
+  if (!palette) return;
+  const canvas = document.getElementById("palette");
+  const ctx = canvas.getContext("2d");
+  prepareTile(paintbrush);
+  ctx.putImageData(imageData, 0, 0);
 }
 
 function onResize(events) {
   const event = events[events.length - 1];
   const canvas = event.target;
-  canvas.width = event.contentRect.width;
-  canvas.height = event.contentRect.height;
   render(canvas);
 }
 
+/* Bafflingly, Canvas API does not give us a way to project to and from screen coordinates.
+ * We're using mismatched sizes and object-fit:contain, so it really is a question.
+ * But we can fake it.
+ */
+function mapCoordsForEvent(event) {
+  if (!mapw || !maph) return [-1, -1];
+  const bounds = event.target.getBoundingClientRect();
+  const canvasAspect = bounds.width / bounds.height;
+  const mapAspect = mapw / maph;
+  let mx, my, mw, mh; // Map's projected bounds in the canvas.
+  if (mapAspect > canvasAspect) { // Letterbox.
+    mx = 0;
+    mw = bounds.width;
+    mh = bounds.width / mapAspect;
+    my = (bounds.height >> 1) - (mh >> 1);
+  } else { // Pillarbox.
+    my = 0;
+    mh = bounds.height;
+    mw = bounds.height * mapAspect;
+    mx = (bounds.width >> 1) - (mw >> 1);
+  }
+  const x = Math.floor(((event.clientX - bounds.x - mx) * mapw) / mw);
+  const y = Math.floor(((event.clientY - bounds.y - my) * maph) / mh);
+  return [x, y];
+}
+
+function onCanvasDown(event) {
+  event.preventDefault();
+  const [x, y] = mapCoordsForEvent(event);
+  if ((x < 0) || (y < 0) || (x >= mapw) || (y >= maph)) return;
+  if (event.ctrlKey) {
+    paintbrush = map_data[y * mapw + x];
+    renderPalette();
+  } else {
+    map_data[y * mapw + x] = paintbrush;
+    painting = true;
+  }
+  lastx = x;
+  lasty = y;
+  render();
+}
+
+function onCanvasUp(event) {
+  painting = false;
+}
+
+function onCanvasMove(event) {
+  const [x, y] = mapCoordsForEvent(event);
+  if ((x < 0) || (y < 0) || (x >= mapw) || (y >= maph)) {
+    document.querySelector(".tattle").innerText = "";
+  } else {
+    document.querySelector(".tattle").innerText = `${x},${y}`;
+  }
+  if (painting && ((x !== lastx) || (y !== lasty))) {
+    map_data[y * mapw + x] = paintbrush;
+    lastx = x;
+    lasty = y;
+    render(null, x, y, 1, 1);
+  }
+}
+
+function onCanvasContextMenu(event) {
+  event.preventDefault();
+}
+
+function cssColorFromXbgr(xbgr) {
+  const r = xbgr & 0xff;
+  const g = (xbgr >> 8) & 0xff;
+  const b = (xbgr >> 16) & 0xff;
+  return `rgb(${r},${g},${b})`;
+}
+
+// (colorid) in 0..7
+function onEditColor(colorid, cb) {
+  const dialog = document.createElement("DIALOG");
+  dialog.classList.add("color");
+  
+  const xbgrFromInputs = (pfx) => {
+    const red = +dialog.querySelector(`input[name='${pfx}red']`).value;
+    const green = +dialog.querySelector(`input[name='${pfx}green']`).value;
+    const blue = +dialog.querySelector(`input[name='${pfx}blue']`).value;
+    return 0xff000000 | (blue << 16) | (green << 8) | red;
+  };
+  
+  const drawPreviews = () => {
+    bgpreview.style.backgroundColor = cssColorFromXbgr(xbgrFromInputs("bg"));
+    fgpreview.style.backgroundColor = cssColorFromXbgr(xbgrFromInputs("fg"));
+  };
+  
+  const addSlider = (parent, name, ix, shift) => {
+    const slider = document.createElement("INPUT");
+    parent.appendChild(slider);
+    slider.type = "range";
+    slider.name = name;
+    slider.min = 0;
+    slider.max = 255;
+    slider.value = (palette[ix] >> shift) & 0xff;
+    slider.addEventListener("input", drawPreviews);
+  };
+  
+  const bg = document.createElement("DIV");
+  dialog.appendChild(bg);
+  const bgpreview = document.createElement("DIV");
+  bg.appendChild(bgpreview);
+  bgpreview.classList.add("preview");
+  addSlider(bg, "bgred", colorid*2, 0);
+  addSlider(bg, "bggreen", colorid*2, 8);
+  addSlider(bg, "bgblue", colorid*2, 16);
+  
+  const fg = document.createElement("DIV");
+  dialog.appendChild(fg);
+  const fgpreview = document.createElement("DIV");
+  fg.appendChild(fgpreview);
+  fgpreview.classList.add("preview");
+  addSlider(fg, "fgred", colorid*2+1, 0);
+  addSlider(fg, "fggreen", colorid*2+1, 8);
+  addSlider(fg, "fgblue", colorid*2+1, 16);
+  
+  const submit = document.createElement("INPUT");
+  fg.appendChild(submit);
+  submit.type = "button";
+  submit.value = "OK";
+  submit.addEventListener("click", () => {
+    palette[colorid * 2] = xbgrFromInputs("bg");
+    palette[colorid * 2 + 1] = xbgrFromInputs("fg");
+    dialog.remove();
+    renderPalette();
+    cb?.();
+  });
+  
+  drawPreviews();
+  document.body.appendChild(dialog);
+  dialog.showModal();
+}
+
+function onPaletteClick(event) {
+  let color = paintbrush >> 5;
+  let tileid = paintbrush & 0x1f;
+  const dialog = document.createElement("DIALOG");
+  dialog.classList.add("palette");
+  
+  const contexts = [];
+  const redrawTiles = () => {
+    for (let etileid=0; etileid<32; etileid++) {
+      const ctx = contexts[etileid];
+      if (!ctx) continue;
+      prepareTile((color << 5) | etileid);
+      ctx.putImageData(imageData, 0, 0);
+    }
+  };
+  
+  const left = document.createElement("DIV");
+  dialog.appendChild(left);
+  for (let i=0; i<8; i++) {
+    const colorid = i;
+    const row = document.createElement("DIV");
+    left.appendChild(row);
+    const input = document.createElement("INPUT");
+    row.appendChild(input);
+    input.type = "radio";
+    input.id = `color-radio-${i}`;
+    input.name = "color";
+    input.value = i;
+    input.checked = (i === color);
+    input.addEventListener("change", e => {
+      if (input.checked) color = colorid;
+      redrawTiles();
+    });
+    const label = document.createElement("LABEL");
+    row.appendChild(label);
+    label.setAttribute("for", `color-radio-${i}`);
+    label.innerText = `Color ${i}`;
+    const bgtattle = document.createElement("DIV");
+    row.appendChild(bgtattle);
+    bgtattle.classList.add("colortattle");
+    bgtattle.style.backgroundColor = cssColorFromXbgr(palette[i * 2]);
+    bgtattle.addEventListener("click", () => onEditColor(colorid, () => {
+      bgtattle.style.backgroundColor = cssColorFromXbgr(palette[i * 2]);
+      redrawTiles();
+    }));
+    const fgtattle = document.createElement("DIV");
+    row.appendChild(fgtattle);
+    fgtattle.classList.add("colortattle");
+    fgtattle.style.backgroundColor = cssColorFromXbgr(palette[i * 2 + 1]);
+    fgtattle.addEventListener("click", () => onEditColor(colorid, () => {
+      fgtattle.style.backgroundColor = cssColorFromXbgr(palette[i * 2 + 1]);
+      redrawTiles();
+    }));
+  }
+  const submit = document.createElement("INPUT");
+  left.appendChild(submit);
+  submit.type = "button";
+  submit.value = "OK";
+  submit.addEventListener("click", event => {
+    paintbrush = (color << 5) | tileid;
+    dialog.remove();
+    renderPalette();
+  });
+  
+  const right = document.createElement("DIV");
+  dialog.appendChild(right);
+  for (let row=0, etileid=0; row<4; row++) {
+    const uirow = document.createElement("DIV");
+    right.appendChild(uirow);
+    uirow.classList.add("row");
+    for (let col=0; col<8; col++, etileid++) {
+      const eetileid = etileid;
+      const canvas = document.createElement("CANVAS");
+      uirow.appendChild(canvas);
+      canvas.classList.add("paletteTile");
+      canvas.width = 4;
+      canvas.height = 4;
+      canvas.setAttribute("data-tileid", etileid);
+      if (etileid === tileid) {
+        canvas.style.borderColor = "#0ff";
+      }
+      canvas.addEventListener("click", e => {
+        for (const other of dialog.querySelectorAll("canvas")) other.style.borderColor = "#fff";
+        canvas.style.borderColor = "#0ff";
+        tileid = eetileid;
+      });
+      const ctx = canvas.getContext("2d");
+      contexts.push(ctx);
+    }
+  }
+  
+  redrawTiles();
+  document.body.appendChild(dialog);
+  dialog.showModal();
+}
+
 addEventListener("load", () => {
-  graphics = document.getElementById("graphics");
   
   const toolbar = document.createElement("DIV");
   toolbar.classList.add("toolbar");
@@ -284,11 +572,52 @@ addEventListener("load", () => {
   saveButton.value = "Save";
   saveButton.addEventListener("click", onSave);
   toolbar.appendChild(saveButton);
+  const tattle = document.createElement("DIV");
+  tattle.classList.add("tattle");
+  toolbar.appendChild(tattle);
+  const paletteCanvas = document.createElement("CANVAS");
+  paletteCanvas.id = "palette";
+  paletteCanvas.width = 4;
+  paletteCanvas.height = 4;
+  paletteCanvas.style.width = "16px";
+  paletteCanvas.style.height = "16px";
+  paletteCanvas.style.border = "1px solid #fff";
+  paletteCanvas.style.imageRendering = "pixelated";
+  paletteCanvas.addEventListener("click", onPaletteClick);
+  toolbar.appendChild(paletteCanvas);
+  renderPalette();
   
   const canvas = document.createElement("CANVAS");
   canvas.id = "visual";
+  canvas.addEventListener("pointerdown", onCanvasDown);
+  canvas.addEventListener("pointerup", onCanvasUp);
+  canvas.addEventListener("pointermove", onCanvasMove);
+  canvas.addEventListener("contextmenu", onCanvasContextMenu);
   document.body.appendChild(canvas);
   
   const resizeObserver = new ResizeObserver(onResize);
   resizeObserver.observe(canvas);
 });
+
+/* Using file protocol, we are not allowed to read the imageData of a canvas once our graphics were drawn there,
+ * due to cross-origin policy. The fuck is that.
+ * But whatever, the source graphics are trivial. When we change the original, get a dump of it, one word per pixel.
+ */
+const GRAPHICS = [
+0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1,1,
+0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,1,0,1,0,1,0,1,1,0,0,0,0,0,0,1,
+0,0,0,0,1,0,0,1,1,1,1,1,1,0,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,
+0,0,0,0,1,0,1,1,0,1,0,1,0,1,0,1,0,1,1,0,0,1,0,1,1,0,1,1,1,1,0,1,
+1,1,1,1,1,0,1,0,1,0,1,0,1,1,0,1,1,0,1,0,0,1,1,0,1,0,0,0,0,0,0,1,
+1,0,0,1,1,0,1,1,0,1,0,1,0,1,0,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,
+1,0,0,1,1,0,1,0,1,0,1,0,1,1,0,1,1,0,1,0,1,0,1,0,0,0,0,1,1,0,0,0,
+1,1,1,1,1,0,1,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,1,1,0,0,0,
+0,1,1,0,1,0,1,0,1,0,1,0,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+1,0,0,1,1,0,0,1,1,1,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+1,0,0,1,1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+0,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,
+0,1,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+1,1,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,
+1,1,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,
+0,1,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,1,1,
+];

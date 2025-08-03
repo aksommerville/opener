@@ -40,7 +40,7 @@ void game_render() {
   
   const unsigned char *map=map_data;
   int dsty=0;
-  for (;dsty<FBH;dsty+=TILESIZE) {
+  for (;dsty<FBH;dsty+=TILESIZE) {//XXX no longer correct. need global scroll etc. map is huge
     int dstx=0;
     for (;dstx<FBW;dstx+=TILESIZE,map++) {
       int palp=(*map)>>5;
