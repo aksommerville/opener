@@ -12,7 +12,7 @@ struct sprite_type;
 
 struct sprite {
   const struct sprite_type *type;
-  double x,y; // In world tiles. Mind that default sprite tiles are actually 2x2 of this.
+  int x,y; // In world pixels, center of sprite.
   uint8_t tileid,xform;
   uint32_t bg,fg;
   int defunct; // The one and only way that game logic should remove a sprite, is to set this nonzero.

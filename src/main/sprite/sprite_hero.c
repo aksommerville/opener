@@ -55,15 +55,15 @@ static void _hero_update(struct sprite *sprite,double elapsed) {
       ANIMCLOCK+=0.200;
       if (++(ANIMFRAME)>=4) ANIMFRAME=0;
     }
-    sprite->x+=WALKSPEED*elapsed*indx;
-    sprite->y+=WALKSPEED*elapsed*indy;
+    sprite->x+=indx;
+    sprite->y+=indy;
     sprite_rectify(sprite,indx,indy);
     // If there was significant motion, say >1mm, update g.heropath.
     int pvp=g.heropathp-1;
     if (pvp<0) pvp+=HEROPATH_LIMIT;
-    double dx=sprite->x-g.heropath[pvp].x;
-    double dy=sprite->y-g.heropath[pvp].y;
-    if ((dx<-0.001)||(dx>0.001)||(dy<-0.001)||(dy>0.001)) {
+    int dx=sprite->x-g.heropath[pvp].x;
+    int dy=sprite->y-g.heropath[pvp].y;
+    if (dx||dy) {
       g.heropath[g.heropathp].x=sprite->x;
       g.heropath[g.heropathp].y=sprite->y;
       if (++(g.heropathp)>=HEROPATH_LIMIT) g.heropathp=0;

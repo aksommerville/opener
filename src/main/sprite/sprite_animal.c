@@ -15,7 +15,6 @@
  */
  
 static int _animal_init(struct sprite *sprite) {
-  sprite->layer=1; // We must update after the hero.
   ORDER=(sprite->arg>>2)&3;
   switch (sprite->arg&3) {
     case 0: { // lion
@@ -35,7 +34,7 @@ static int _animal_init(struct sprite *sprite) {
         sprite->fg=0xff137bd9;
       } break;
   }
-  HEROPATHD=-20;//TODO Select heropathd based on how many animals.
+  HEROPATHD=-6*(ORDER+1)-4;
   return 0;
 }
 
@@ -49,8 +48,8 @@ static void _animal_update(struct sprite *sprite,double elapsed) {
    * We'll move at a constant speed. Apply a <1-pixel tolerance to avoid jittering when we reach it.
    */
   int walking=0;
-  double targetx=sprite->x;
-  double targety=sprite->y;
+  int targetx=sprite->x;
+  int targety=sprite->y;
   int hpp=g.heropathp+HEROPATHD;
   if (hpp<0) hpp+=HEROPATH_LIMIT;
   targetx=g.heropath[hpp].x;
@@ -70,27 +69,16 @@ static void _animal_update(struct sprite *sprite,double elapsed) {
     targetx=g.hero->x-hdx*2.250*(ORDER+1.0);
     targety=g.hero->y-hdy*2.250*(ORDER+1.0);
   }
-  double dx=targetx-sprite->x;
-  double dy=targety-sprite->y;
-  if (dx<0.0) {
-    if ((sprite->x-=WALKSPEED*elapsed)<=targetx) sprite->x=targetx;
+  int dx=targetx-sprite->x;
+  int dy=targety-sprite->y;
+  if (dx||dy) {
+    sprite->x+=dx;
+    sprite->y+=dy;
     walking=1;
-    sprite->xform=R1B_XFORM_XREV;
-  } else if (dx>0.0) {
-    if ((sprite->x+=WALKSPEED*elapsed)>=targetx) sprite->x=targetx;
-    walking=1;
-    sprite->xform=0;
-  } else if (g.hero&&(g.hero->x<sprite->x-0.5)) {
-    sprite->xform=R1B_XFORM_XREV;
-  } else if (g.hero&&(g.hero->x>sprite->x+0.5)) {
-    sprite->xform=0;
-  }
-  if (dy<0.0) {
-    if ((sprite->y-=WALKSPEED*elapsed)<=targety) sprite->y=targety;
-    walking=1;
-  } else if (dy>0.0) {
-    if ((sprite->y+=WALKSPEED*elapsed)>=targety) sprite->y=targety;
-    walking=1;
+    if (dx<0) sprite->xform=R1B_XFORM_XREV;
+    else if (dx>0) sprite->xform=0;
+    else if (g.hero&&(g.hero->x<sprite->x)) sprite->xform=R1B_XFORM_XREV;
+    else if (g.hero&&(g.hero->x>sprite->x)) sprite->xform=0;
   }
 
   // Animation.

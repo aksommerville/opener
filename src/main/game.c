@@ -11,11 +11,11 @@ int game_reset() {
   g.spritec=0;
   g.camerax=0;
   g.cameray=0;
-  if (!(g.hero=sprite_spawn(&sprite_type_hero,10.0,5.0,0))) return -1;
-  sprite_spawn(&sprite_type_animal, 6.0,6.0,0x00);//XXX TEMP
-  sprite_spawn(&sprite_type_animal, 6.0,2.0,0x05);//XXX TEMP
-  sprite_spawn(&sprite_type_animal,10.0,6.0,0x0a);//XXX TEMP
-  sprite_spawn(&sprite_type_animal,11.0,1.0,0x0f);//XXX TEMP
+  if (!(g.hero=sprite_spawn(&sprite_type_hero,80,40,0))) return -1;
+  sprite_spawn(&sprite_type_animal, 24,48,0x00);//XXX TEMP
+  sprite_spawn(&sprite_type_animal, 24,16,0x05);//XXX TEMP
+  sprite_spawn(&sprite_type_animal, 80,48,0x0a);//XXX TEMP
+  sprite_spawn(&sprite_type_animal, 88, 8,0x0f);//XXX TEMP
   
   /* It shouldn't matter, but initialize (heropath) with the current position.
    * Shouldn't matter because you don't start with any animals, by the time you find one, we'll have repopulated the path.
@@ -34,7 +34,7 @@ int game_reset() {
 /* Spawn sprite.
  */
  
-struct sprite *sprite_spawn(const struct sprite_type *type,double x,double y,uint32_t arg) {
+struct sprite *sprite_spawn(const struct sprite_type *type,int x,int y,uint32_t arg) {
   struct sprite *sprite=0;
   if (g.spritec<SPRITE_LIMIT) {
     sprite=g.spritev+g.spritec++;
@@ -76,12 +76,20 @@ void game_update(double elapsed) {
     if (sprite->defunct) continue;
     if (sprite->type==&sprite_type_hero) g.hero=sprite;
   }
+  
+  /* If there's a hero sprite, she updates in advance of the others.
+   * Otherwise it depends on render order and gets a little weird.
+   */
+  if (g.hero&&g.hero->type->update) {
+    g.hero->type->update(g.hero,elapsed);
+  }
 
-  /* Update sprites.
+  /* Update the non-hero sprites.
    */
   for (sprite=g.spritev,i=g.spritec;i-->0;sprite++) {
     if (sprite->defunct) continue;
     if (!sprite->type->update) continue;
+    if (sprite==g.hero) continue;
     sprite->type->update(sprite,elapsed);
   }
   
@@ -93,8 +101,10 @@ void game_update(double elapsed) {
    * No hero, whatever, leave it wherever it is.
    */
   if (g.hero) {
-    g.camerax=(int)(g.hero->x*TILESIZE+0.5)-(FBW>>1);
-    g.cameray=(int)(g.hero->y*TILESIZE+0.5)-(FBH>>1);
+    //g.camerax=(int)(g.hero->x*TILESIZE+0.5)-(FBW>>1);
+    //g.cameray=(int)(g.hero->y*TILESIZE+0.5)-(FBH>>1);
+    g.camerax=g.hero->x-(FBW>>1);
+    g.cameray=g.hero->y-(FBH>>1);
     if (g.camerax<0) g.camerax=0; else if (g.camerax+FBW>mapw*TILESIZE) g.camerax=mapw*TILESIZE-FBW;
     if (g.cameray<0) g.cameray=0; else if (g.cameray+FBH>maph*TILESIZE) g.cameray=maph*TILESIZE-FBH;
   }
@@ -171,8 +181,8 @@ void game_render() {
   struct sprite *sprite=g.spritev;
   int i=g.spritec;
   for (;i-->0;sprite++) {
-    int dstx=((int)(sprite->x*TILESIZE+0.5))-g.camerax;
-    int dsty=((int)(sprite->y*TILESIZE+0.5))-g.cameray;
+    int dstx=sprite->x-g.camerax;
+    int dsty=sprite->y-g.cameray;
     if (sprite->type->render) {
       #define BORDER 10 /* Render if sprite's focus point is this close to the camera. */
       if (dstx<-BORDER) continue;

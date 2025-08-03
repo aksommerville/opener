@@ -10,6 +10,7 @@
 #define FBW 64
 #define FBH 36
 #define TILESIZE 4
+#define SPRITESIZE 8
 #define COLC 16 /* Framebuffer size, phrased in tiles. */
 #define ROWC 9
 
@@ -44,7 +45,7 @@ extern struct g {
   int camerax,cameray; // World pixels.
   struct sprite spritev[SPRITE_LIMIT];
   int spritec;
-  struct pathpos { double x,y; } heropath[HEROPATH_LIMIT]; // Circular. Coordinates in world meters.
+  struct pathpos { int16_t x,y; } heropath[HEROPATH_LIMIT]; // Circular. Coordinates in world pixels.
   int heropathp; // Position of the oldest entry. She's most recently at p-1. Advances only when the hero moves.
   
   // Key sprites idenitifed at the start of each game_update. All are WEAK and OPTIONAL.
@@ -77,7 +78,7 @@ int game_reset();
 void game_update(double elapsed);
 void game_render();
 
-struct sprite *sprite_spawn(const struct sprite_type *type,double x,double y,uint32_t arg);
+struct sprite *sprite_spawn(const struct sprite_type *type,int x,int y,uint32_t arg);
 
 /* stdlib functions that we either get from real libc, or main.c implements them for web.
  */
