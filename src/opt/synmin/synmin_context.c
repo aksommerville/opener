@@ -205,3 +205,10 @@ void synmin_note(unsigned char noteida,unsigned char noteidz,unsigned char level
     voice->ddp=(dpz-voice->dp)/voice->ttl;
   }
 }
+
+/* Kill all voices.
+ */
+ 
+void synmin_silence() {
+  synmin.voicec=0;
+}

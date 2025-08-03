@@ -40,9 +40,13 @@ extern struct g {
   int camerax,cameray; // World pixels.
 } g;
 
-//TODO audio
-#define SFX(tag) ;
-#define SONG(tag) sh_ms("\x02\x01",2);
+#define SFX(tag) sh_ms(SFX_##tag,sizeof(SFX_##tag)-1);
+#define SONG(tag) sh_ms("\x02" SONG_##tag,2);
+// Songs are listed in src/audio/main.c. Tags are the stem of the original file name.
+#define SONG_none "\x00"
+#define SONG_across_the_scrubby_moors "\x01"
+// Sounds, you provide the entire message: 0x01,noteida 0..63,noteidz 0..63,level 0..31,duration 16ms
+#define SFX_uimotion "\x01\x20\x30\x08\x05"
 
 /* Draw text into a 32-bit framebuffer.
  * (dstx,dsty) is the top-left corner of the first glyph.

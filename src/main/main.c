@@ -30,7 +30,8 @@ static void cb_music(struct ui_menu_option *option) {
     option->textc=9;
     option->w=0;
   }
-  //TODO Notify audio thread.
+  const unsigned char msg[]={0x04,g.music_enable};
+  sh_ms(msg,sizeof(msg));
 }
  
 static void cb_sound(struct ui_menu_option *option) {
@@ -45,7 +46,8 @@ static void cb_sound(struct ui_menu_option *option) {
     option->textc=9;
     option->w=0;
   }
-  //TODO Notify audio thread.
+  const unsigned char msg[]={0x03,g.sound_enable};
+  sh_ms(msg,sizeof(msg));
 }
  
 static void cb_quit(struct ui_menu_option *option) {
@@ -63,7 +65,7 @@ int shm_init() {
   
   if (1) {
     g.mode=MODE_HELLO;
-    SONG(hello)
+    SONG(none)
   } else { // TEMP: Launch right into game.
     if (game_reset()<0) return -1;
     g.mode=MODE_PLAY;

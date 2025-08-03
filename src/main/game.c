@@ -8,6 +8,7 @@ extern const unsigned char m2[];
  
 int game_reset() {
   //TODO
+  SONG(across_the_scrubby_moors)
   return 0;
 }
 

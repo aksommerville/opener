@@ -46,4 +46,6 @@ void synmin_note(unsigned char noteida,unsigned char noteidz,unsigned char level
  */
 void synmin_song(const void *v,int c,int force,int repeat);
 
+void synmin_silence();
+
 #endif
