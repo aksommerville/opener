@@ -35,6 +35,9 @@ extern struct g {
   // MODE_HELLO
   struct ui_menu menu;
   struct ui_newsfeed newsfeed;
+  
+  // MODE_PLAY
+  int camerax,cameray; // World pixels.
 } g;
 
 //TODO audio

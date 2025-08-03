@@ -30,27 +30,44 @@ void game_update(double elapsed,int input) {
     turnclock+=2.000;
     xform^=R1B_XFORM_XREV;
   }
+  switch (input&(SH_BTN_LEFT|SH_BTN_RIGHT)) {
+    case SH_BTN_LEFT: if (--(g.camerax)<0) g.camerax=0; break;
+    case SH_BTN_RIGHT: if (++(g.camerax)>mapw*TILESIZE-FBW) g.camerax=mapw*TILESIZE-FBW; break;
+  }
+  switch (input&(SH_BTN_UP|SH_BTN_DOWN)) {
+    case SH_BTN_UP: if (--(g.cameray)<0) g.cameray=0; break;
+    case SH_BTN_DOWN: if (++(g.cameray)>maph*TILESIZE-FBH) g.cameray=maph*TILESIZE-FBH; break;
+  }
 }
 
 /* Render.
  */
  
 void game_render() {
-  r1b_img32_fill_rect(&g.fbimg,0,0,FBW,FBH,0xff000000);
   
-  const unsigned char *map=map_data;
-  int dsty=0;
-  for (;dsty<FBH;dsty+=TILESIZE) {//XXX no longer correct. need global scroll etc. map is huge
-    int dstx=0;
-    for (;dstx<FBW;dstx+=TILESIZE,map++) {
-      int palp=(*map)>>5;
-      palp<<=1;
-      uint32_t bg=palette[palp];
-      uint32_t fg=palette[palp+1];
-      uint8_t tileid=(*map)&0x1f;
-      int srcx=(tileid&7)*TILESIZE;
-      int srcy=(tileid>>3)*TILESIZE;
-      r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,dstx,dsty,srcx,srcy,TILESIZE,TILESIZE,bg,fg,0);
+  int cola=g.camerax/TILESIZE; if (cola<0) cola=0;
+  int rowa=g.cameray/TILESIZE; if (rowa<0) rowa=0;
+  int colz=(g.camerax+FBW-1)/TILESIZE; if (colz>=mapw) colz=mapw-1;
+  int rowz=(g.cameray+FBH-1)/TILESIZE; if (rowz>=maph) rowz=maph-1;
+  if ((cola<=colz)&&(rowa<=rowz)) {
+    int mdstx0=cola*TILESIZE-g.camerax;
+    int mdsty=rowa*TILESIZE-g.cameray;
+    const unsigned char *mrow=map_data+rowa*mapw+cola;
+    int row=rowa;
+    for (;row<=rowz;row++,mdsty+=TILESIZE,mrow+=mapw) {
+      const unsigned char *mp=mrow;
+      int col=cola;
+      int mdstx=mdstx0;
+      for (;col<=colz;col++,mdstx+=TILESIZE,mp++) {
+        int palp=(*mp)>>5;
+        palp<<=1;
+        uint32_t bg=palette[palp];
+        uint32_t fg=palette[palp+1];
+        uint8_t tileid=(*mp)&0x1f;
+        int srcx=(tileid&7)*TILESIZE;
+        int srcy=(tileid>>3)*TILESIZE;
+        r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,mdstx,mdsty,srcx,srcy,TILESIZE,TILESIZE,bg,fg,0);
+      }
     }
   }
   

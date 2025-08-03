@@ -35,12 +35,12 @@ I'll be doing (GDEX Jam 2025)[https://itch.io/jam/gdex-game-jam-2025] at the sam
 ## TODO
 
 - [x] Using a 3x5 font, so store them glyphwise in 16 bits each.
-- [ ] Map format and loader.
-- - [ ] Change it to use just one map, and scroll freely.
-- [ ] Map editor.
-- [ ] Render maps.
+- [x] Map format and loader.
+- - [x] Change it to use just one map, and scroll freely.
+- [x] Map editor.
+- [x] Render maps.
 - [ ] Sprites, generically.
-- [ ] Transitions.
+- [x] Transitions. XXX just one map.
 - [ ] Hero movement, collisions, trigger transitions.
 - [ ] Enemies.
 - [ ] Combat: Shoot enemies with your wand and they are disabled until you leave the room.
