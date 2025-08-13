@@ -260,10 +260,10 @@ static int png_ctsearch(struct png_iterator *iter,struct png_pixel pixel) {
     int luma=(pixel.r+pixel.g+pixel.b)/3;
     return luma>>(16-iter->image->pixelsize);
   }
-  pixel.r>>8; // We are only interested in the MSB.
-  pixel.g>>8;
-  pixel.b>>8;
-  pixel.a>>8;
+  pixel.r>>=8; // We are only interested in the MSB.
+  pixel.g>>=8;
+  pixel.b>>=8;
+  pixel.a>>=8;
   int bestix=0,bestscore=1024;
   int ix=0;
   for (;ix<pltec;ix++,plte+=3) {
