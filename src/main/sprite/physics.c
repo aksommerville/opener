@@ -74,7 +74,7 @@ int sprite_rectify(struct sprite *sprite,int dx,int dy) {
   int colz=(sprite->x+TILESIZE-1)/TILESIZE;
   int rowa=(sprite->y-TILESIZE)/TILESIZE;
   int rowz=(sprite->y+TILESIZE-1)/TILESIZE;
-  const uint8_t *maprow=map_data+rowa*mapw+cola;
+  const uint8_t *maprow=map+rowa*mapw+cola;
   int row=rowa;
   for (;row<=rowz;row++,maprow+=mapw) {
     const uint8_t *mapp=maprow;

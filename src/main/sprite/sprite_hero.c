@@ -92,6 +92,7 @@ static inline void rtile(int dstx,int dsty,uint8_t tileid,uint32_t fg,uint8_t xf
  
 static void _hero_render(struct sprite *sprite,int x,int y) {
   uint8_t xform=(FACEDX<0)?R1B_XFORM_XREV:0;
+  sprite->xform=xform; // We don't use this, but other observers do.
   int dstx=x-TILESIZE;
   int dsty=y-TILESIZE;
   uint8_t bodytile=0x04;
@@ -102,6 +103,12 @@ static void _hero_render(struct sprite *sprite,int x,int y) {
   rtile(dstx,dsty,bodytile,0xffa02050,xform); // body and hat
   rtile(dstx,dsty,0x08,0xffa0c0f0,xform); // face
   rtile(dstx,dsty,0x09,0xff1010c0,xform); // hair
+  if (g.key) {
+    int kdstx=dstx;
+    if (xform) kdstx-=6;
+    else kdstx+=6;
+    rtile(kdstx,dsty,0x0e,0xff00ffff,xform);
+  }
 }
 
 /* Type definition.

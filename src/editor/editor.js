@@ -117,10 +117,11 @@ function parseModel(src) {
         default: throw new Error(`Expected 'int', 'char', or 'short', found ${JSON.stringify(token)}`);
       }
       const k = tokenizer.next();
-      let expectArray = false;
+      let expectArray = false, expectUninitialized = false;
       switch (k) {
         case "palette": case "map_data": expectArray = true; break;
         case "mapw": case "maph": break;
+        case "map": expectUninitialized = true; break;
         default: throw new Error(`Unexpected member ${JSON.stringify(k)}`);
       }
       if (expectArray) {
@@ -139,6 +140,8 @@ function parseModel(src) {
           case "map_data": readMapData(tokenizer); break;
           default: throw new Error(`oops, k=${JSON.stringify(k)}`);
         }
+      } else if (expectUninitialized) {
+        // Key then semicolon.
       } else {
         token = tokenizer.next();
         // All members must have an initializer.
@@ -204,12 +207,16 @@ function writeMapData() {
   return dst;
 }
 
+function writeMap() {
+  return `unsigned char map[${mapw * maph}];\n\n`;
+}
+
 function onSave() {
   if (!map_data) return;
   // Preserve top-level comments and order from the original text.
   // Rewrite each declaration.
   let dst = "";
-  let wrotePalette=false, wroteMapw=false, wroteMaph=false, wroteMapData=false;
+  let wrotePalette=false, wroteMapw=false, wroteMaph=false, wroteMapData=false, wroteMap=false;
   const tokenizer = new Tokenizer(originalText, true);
   let token;
   while (token = tokenizer.next()) {
@@ -245,6 +252,7 @@ function onSave() {
       case "mapw": wroteMapw = true; dst += writeMapw(); break;
       case "maph": wroteMaph = true; dst += writeMaph(); break;
       case "map_data": wroteMapData = true; dst += writeMapData(); break;
+      case "map": wroteMap = true; dst += writeMap(); break;
       default: throw new Error(`Unexpected member ${JSON.stringify(k)}`);
     }
   }
@@ -253,6 +261,7 @@ function onSave() {
   if (!wroteMapw) dst += writeMapw();
   if (!wroteMaph) dst += writeMaph();
   if (!wroteMapData) dst += writeMapData();
+  if (!wroteMap) dst += writeMap();
   // "Save" it by forcing a download.
   const blob = new Blob([dst], { type: "application/octet-stream" });
   const url = URL.createObjectURL(blob);

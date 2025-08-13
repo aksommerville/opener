@@ -66,5 +66,6 @@ extern const struct sprite_type sprite_type_dummy;
 extern const struct sprite_type sprite_type_hero;
 extern const struct sprite_type sprite_type_animal;
 extern const struct sprite_type sprite_type_moonsong;
+extern const struct sprite_type sprite_type_key;
 
 #endif

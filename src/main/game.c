@@ -10,18 +10,21 @@ int game_reset() {
   g.spritec=0;
   g.camerax=0;
   g.cameray=0;
+  memcpy(map,map_data,mapw*maph);
   
   /* Create the initial sprites.
    * It's all hard-coded right here, there's no data file of initial sprite positions.
    */
   if (!(g.hero=sprite_spawn(&sprite_type_hero,32,18,0))) return -1;
   sprite_spawn(&sprite_type_moonsong,4,20,0);
-  /*
-  sprite_spawn(&sprite_type_animal, 24,48,0x00);//XXX TEMP
-  sprite_spawn(&sprite_type_animal, 24,16,0x05);//XXX TEMP
-  sprite_spawn(&sprite_type_animal, 80,48,0x0a);//XXX TEMP
-  sprite_spawn(&sprite_type_animal, 88, 8,0x0f);//XXX TEMP
-  /**/
+  sprite_spawn(&sprite_type_animal,26*TILESIZE,14*TILESIZE,0x00);
+  sprite_spawn(&sprite_type_animal,90*TILESIZE, 5*TILESIZE,0x01);
+  sprite_spawn(&sprite_type_animal,53*TILESIZE,32*TILESIZE,0x02);
+  sprite_spawn(&sprite_type_animal, 6*TILESIZE,50*TILESIZE,0x03);
+  sprite_spawn(&sprite_type_key, 4*TILESIZE,40*TILESIZE,0);
+  sprite_spawn(&sprite_type_key,88*TILESIZE,50*TILESIZE,0);
+  sprite_spawn(&sprite_type_key,60*TILESIZE, 2*TILESIZE,0);
+  sprite_spawn(&sprite_type_key,35*TILESIZE,12*TILESIZE,0);
   
   /* It shouldn't matter, but initialize (heropath) with the current position.
    * Shouldn't matter because you don't start with any animals, by the time you find one, we'll have repopulated the path.
@@ -178,7 +181,7 @@ void game_render() {
   if ((cola<=colz)&&(rowa<=rowz)) {
     int mdstx0=cola*TILESIZE-g.camerax;
     int mdsty=rowa*TILESIZE-g.cameray;
-    const unsigned char *mrow=map_data+rowa*mapw+cola;
+    const unsigned char *mrow=map+rowa*mapw+cola;
     int row=rowa;
     for (;row<=rowz;row++,mdsty+=TILESIZE,mrow+=mapw) {
       const unsigned char *mp=mrow;

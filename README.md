@@ -54,7 +54,7 @@ I'll be doing (GDEX Jam 2025)[https://itch.io/jam/gdex-game-jam-2025] at the sam
 - - [ ] Spell of Opening
 - - [ ] Spell of Slumber
 - - [ ] Need a few more. And also some hidden ones.
-- [ ] Animals to rescue.
+- [x] Animals to rescue.
 - [ ] Game over. Win only, you play until you win or give up.
 - [x] Dialogue.
 - [ ] Proper maps and graphics.
@@ -65,3 +65,4 @@ I'll be doing (GDEX Jam 2025)[https://itch.io/jam/gdex-game-jam-2025] at the sam
 - [ ] Eliminate AUX1-to-quit before release. (and provide a friendlier option).
 - [ ] `evdev_shovel_glue.c`: Still have hard-coded devices. Implement general mapping and copy back to shovel. (native only, so not a big deal).
 - [ ] I'm going to want a fullscreen toggle too. (xegl)
+- [ ] Newly-liberated animals should walk to the path, don't snap to it until you've reached your place for the first time.

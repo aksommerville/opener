@@ -26,6 +26,7 @@
 extern const unsigned int palette[16]; // 8 (bg,fg) pairs.
 extern const int mapw,maph;
 extern const unsigned char map_data[];
+extern unsigned char map[]; // Parallel to (map_data) but writeable.
 
 extern struct g {
 
@@ -51,6 +52,8 @@ extern struct g {
   int spritec;
   struct pathpos { int16_t x,y; } heropath[HEROPATH_LIMIT]; // Circular. Coordinates in world pixels.
   int heropathp; // Position of the oldest entry. She's most recently at p-1. Advances only when the hero moves.
+  int animalc; // 0..4
+  int key; // 0..1, doesn't matter which
   
   // Key sprites idenitifed at the start of each game_update. All are WEAK and OPTIONAL.
   struct sprite *hero;
@@ -73,7 +76,9 @@ extern struct g {
 #define SONG_across_the_scrubby_moors "\x01"
 // Sounds, you provide the entire message: 0x01,noteida 0..63,noteidz 0..63,level 0..31,duration 16ms
 #define SFX_uimotion "\x01\x20\x30\x08\x05"
-#define SFX_typewriter "\x01\x18\x18\x02\x01"
+#define SFX_typewriter "\x01\x18\x18\x04\x01"
+#define SFX_getkey "\x01\x30\x3c\x0c\x10"
+#define SFX_unlock "\x01\x2c\x38\x0c\x10"
 
 /* Draw text into a 32-bit framebuffer.
  * (dstx,dsty) is the top-left corner of the first glyph.

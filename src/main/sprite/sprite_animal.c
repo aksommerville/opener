@@ -1,5 +1,6 @@
 /* sprite_animal.c
- * arg: 28:unused, 2:order, 2:species
+ * arg: 28:unused, 3:order, 2:species
+ * Order zero means not yet rescued. 1..4 are valid.
  */
 
 #include "main/game.h"
@@ -15,7 +16,7 @@
  */
  
 static int _animal_init(struct sprite *sprite) {
-  ORDER=(sprite->arg>>2)&3;
+  ORDER=(sprite->arg>>2)&7;
   switch (sprite->arg&3) {
     case 0: { // lion
         sprite->tileid=0x14;
@@ -34,15 +35,65 @@ static int _animal_init(struct sprite *sprite) {
         sprite->fg=0xff137bd9;
       } break;
   }
-  //HEROPATHD=-6*(ORDER+1)-4;
   HEROPATHD=-9*(ORDER+1)-1;
   return 0;
+}
+
+/* Check for unlocking.
+ * Hero exists, and we're not liberated yet.
+ */
+ 
+static void animal_check_unlock(struct sprite *sprite) {
+
+  // Must have a key, and animal and hero must be on the same screen.
+  if (!g.key) return;
+  int myscreenx=sprite->x/(TILESIZE*COLC);
+  int heroscreenx=g.hero->x/(TILESIZE*COLC);
+  if (myscreenx!=heroscreenx) return;
+  int myscreeny=sprite->y/(TILESIZE*ROWC);
+  int heroscreeny=g.hero->y/(TILESIZE*ROWC);
+  if (myscreeny!=heroscreeny) return;
+  
+  // Identify the map cell right in front of the hero.
+  int col=(g.hero->x+((g.hero->xform&R1B_XFORM_XREV)?-5:5))/TILESIZE;
+  if ((col<0)||(col>=mapw)) return;
+  int row=g.hero->y/TILESIZE;
+  if ((row<0)||(row>=maph)) return;
+  uint8_t tileid=map[row*mapw+col];
+  if ((tileid==0x18)||(tileid==0x14)) {
+    SFX(unlock)
+    uint8_t *mrow=map+myscreeny*mapw*ROWC+myscreenx*COLC;
+    int yi=ROWC;
+    for (;yi-->0;mrow+=mapw) {
+      uint8_t *mp=mrow;
+      int xi=COLC;
+      for (;xi-->0;mp++) {
+        if ((*mp==0x18)||(*mp==0x14)) *mp=0x00;
+      }
+    }
+    g.key=0;
+    g.animalc++;
+    ORDER=g.animalc;
+    HEROPATHD=-9*ORDER-1;
+  }
 }
 
 /* Update.
  */
  
 static void _animal_update(struct sprite *sprite,double elapsed) {
+
+  /* When ORDER is zero, we're still in the cage.
+   * Face the hero and check for unlocking -- unlock is effected here.
+   */
+  if (!ORDER) {
+    if (g.hero) {
+      if (g.hero->x<sprite->x) sprite->xform=R1B_XFORM_XREV;
+      else if (g.hero->x>sprite->x) sprite->xform=0;
+      animal_check_unlock(sprite);
+    }
+    return;
+  }
 
   /* Approach some point in (g.heropath), at a position relative to its writehead that we determined at init.
    * HEROPATHD is always negative, and never so negative that it needs more than one bump to become positive.
