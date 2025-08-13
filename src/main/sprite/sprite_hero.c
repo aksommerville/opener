@@ -13,6 +13,7 @@
 static int _hero_init(struct sprite *sprite) {
   sprite->tileid=0x04;
   sprite->fg=0xffa02050;
+  sprite->solid=1;
   FACEDX=1;
   return 0;
 }

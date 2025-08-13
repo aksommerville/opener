@@ -1,7 +1,6 @@
 #include "game.h"
 
 extern const unsigned int palette[];
-extern const unsigned char m2[];
 
 /* Reset entire session.
  */
@@ -11,11 +10,18 @@ int game_reset() {
   g.spritec=0;
   g.camerax=0;
   g.cameray=0;
+  
+  /* Create the initial sprites.
+   * It's all hard-coded right here, there's no data file of initial sprite positions.
+   */
   if (!(g.hero=sprite_spawn(&sprite_type_hero,32,18,0))) return -1;
+  sprite_spawn(&sprite_type_moonsong,4,20,0);
+  /*
   sprite_spawn(&sprite_type_animal, 24,48,0x00);//XXX TEMP
   sprite_spawn(&sprite_type_animal, 24,16,0x05);//XXX TEMP
   sprite_spawn(&sprite_type_animal, 80,48,0x0a);//XXX TEMP
   sprite_spawn(&sprite_type_animal, 88, 8,0x0f);//XXX TEMP
+  /**/
   
   /* It shouldn't matter, but initialize (heropath) with the current position.
    * Shouldn't matter because you don't start with any animals, by the time you find one, we'll have repopulated the path.

@@ -18,6 +18,7 @@ struct sprite {
   int defunct; // The one and only way that game logic should remove a sprite, is to set this nonzero.
   int layer; // Signed, default zero. Higher layers render above others.
   uint32_t arg;
+  int solid;
   int iv[SPRITE_IV_SIZE];
   double fv[SPRITE_FV_SIZE];
 };
@@ -40,6 +41,10 @@ struct sprite_type {
    * if within a sensible range of the camera.
    */
   void (*render)(struct sprite *sprite,int x,int y);
+  
+  /* Called for non-hero solid sprites when the hero collides against them.
+   */
+  void (*collide)(struct sprite *sprite);
 };
 
 static inline int sprite_rendercmp(const struct sprite *a,const struct sprite *b) {
@@ -60,5 +65,6 @@ int tile_is_solid(uint8_t tile);
 extern const struct sprite_type sprite_type_dummy;
 extern const struct sprite_type sprite_type_hero;
 extern const struct sprite_type sprite_type_animal;
+extern const struct sprite_type sprite_type_moonsong;
 
 #endif

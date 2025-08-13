@@ -10,7 +10,7 @@ int tile_is_solid(uint8_t tileid) {
 /* Adjust sprite position to escape some other rectangle.
  */
  
-static void sprite_rectify_1(struct sprite *sprite,int x,int y,int w,int h,int dx,int dy) {
+static int sprite_rectify_1(struct sprite *sprite,int x,int y,int w,int h,int dx,int dy) {
   
   /* Express sprite's bounds as a simple box.
    */
@@ -22,19 +22,19 @@ static void sprite_rectify_1(struct sprite *sprite,int x,int y,int w,int h,int d
   /* Determine escapement in each of the four cardinal directions (from sprite's perspective).
    * If any of this is <=0, there is in fact no collision and we're done. That will happen -- the map check is not perfect.
    */
-  int escn=sy+sh-y; if (escn<=0) return;
-  int escs=y+h-sy; if (escs<=0) return;
-  int escw=sx+sw-x; if (escw<=0) return;
-  int esce=x+w-sx; if (esce<=0) return;
+  int escn=sy+sh-y; if (escn<=0) return 0;
+  int escs=y+h-sy; if (escs<=0) return 0;
+  int escw=sx+sw-x; if (escw<=0) return 0;
+  int esce=x+w-sx; if (esce<=0) return 0;
   
   /* If moving cardinally, there is only one corrective option, do it.
    */
   if (!dx) {
-    if (dy<0) { sprite->y+=escs; return; }
-    if (dy>0) { sprite->y-=escn; return; }
+    if (dy<0) { sprite->y+=escs; return 1; }
+    if (dy>0) { sprite->y-=escn; return 1; }
   } else if (!dy) {
-    if (dx<0) { sprite->x+=esce; return; }
-    if (dx>0) { sprite->x-=escw; return; }
+    if (dx<0) { sprite->x+=esce; return 1; }
+    if (dx>0) { sprite->x-=escw; return 1; }
   }
   
   /* If moving diagonally, poison two of the directions, then proceed as if unspecified.
@@ -49,6 +49,7 @@ static void sprite_rectify_1(struct sprite *sprite,int x,int y,int w,int h,int d
   else if ((escw<=esce)&&(escw<=escs)) sprite->x-=escw;
   else if (esce<=escs) sprite->x+=esce;
   else sprite->y+=escs;
+  return 1;
 }
 
 /* Rectify position of one sprite.
@@ -86,6 +87,22 @@ int sprite_rectify(struct sprite *sprite,int dx,int dy) {
     }
   }
   
-  //TODO physics
+  /* If the sprite in question is solid, it collides against other solid sprites.
+   */
+  if (sprite->solid) {
+    struct sprite *other=g.spritev;
+    int i=g.spritec;
+    for (;i-->0;other++) {
+      if (!other->solid) continue;
+      if (other==sprite) continue;
+      if (sprite_rectify_1(sprite,other->x-TILESIZE,other->y-TILESIZE,TILESIZE<<1,TILESIZE<<1,dx,dy)) {
+        result=1;
+        // If one is the hero and the other implements (collide), call it.
+        if ((sprite->type==&sprite_type_hero)&&other->type->collide) other->type->collide(other);
+        else if ((other->type==&sprite_type_hero)&&sprite->type->collide) sprite->type->collide(sprite);
+      }
+    }
+  }
+  
   return result;
 }

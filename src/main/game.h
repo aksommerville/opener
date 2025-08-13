@@ -17,6 +17,7 @@
 
 #define MODE_HELLO 1
 #define MODE_PLAY 2
+#define MODE_DIALOGUE 3
 
 #define SPRITE_LIMIT 64 /* in the whole world */
 #define HEROPATH_LIMIT 64 /* Takes roughly 10 frames to cross one meter, so the 4-meter parade should fit easily in 64. */
