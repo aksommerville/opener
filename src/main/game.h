@@ -13,6 +13,7 @@
 #define SPRITESIZE 8
 #define COLC 16 /* Framebuffer size, phrased in tiles. */
 #define ROWC 9
+#define PAN_SPEED 4 /* px/frame, must be greater than one. */
 
 #define MODE_HELLO 1
 #define MODE_PLAY 2
@@ -43,6 +44,7 @@ extern struct g {
   
   // MODE_PLAY
   int camerax,cameray; // World pixels.
+  int cameradstx,cameradsty;
   struct sprite spritev[SPRITE_LIMIT];
   int spritec;
   struct pathpos { int16_t x,y; } heropath[HEROPATH_LIMIT]; // Circular. Coordinates in world pixels.

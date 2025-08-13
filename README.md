@@ -41,6 +41,11 @@ I'll be doing (GDEX Jam 2025)[https://itch.io/jam/gdex-game-jam-2025] at the sam
 - [x] Render maps.
 - [ ] Sprites, generically.
 - [x] Transitions. XXX just one map.
+- [x] Try locking the camera until you approach the edge, and slide to positions not an entire screen apart.
+- - Stop should be a factor of (84,41). Um. 41 is prime. Bump world to (100,51).
+- - XXX There just isn't enough screen for that.
+- - [x] But what if we did it based on entire screens?
+- - - Yes I prefer this.
 - [ ] Hero movement, collisions, trigger transitions.
 - [ ] Enemies.
 - [ ] Combat: Shoot enemies with your wand and they are disabled until you leave the room.

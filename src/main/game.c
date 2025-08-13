@@ -101,12 +101,26 @@ void game_update(double elapsed) {
    * No hero, whatever, leave it wherever it is.
    */
   if (g.hero) {
-    //g.camerax=(int)(g.hero->x*TILESIZE+0.5)-(FBW>>1);
-    //g.cameray=(int)(g.hero->y*TILESIZE+0.5)-(FBH>>1);
-    g.camerax=g.hero->x-(FBW>>1);
-    g.cameray=g.hero->y-(FBH>>1);
-    if (g.camerax<0) g.camerax=0; else if (g.camerax+FBW>mapw*TILESIZE) g.camerax=mapw*TILESIZE-FBW;
-    if (g.cameray<0) g.cameray=0; else if (g.cameray+FBH>maph*TILESIZE) g.cameray=maph*TILESIZE-FBH;
+    const int xstop=COLC*TILESIZE;
+    const int ystop=ROWC*TILESIZE;
+    const int xlimit=mapw*TILESIZE-xstop;
+    const int ylimit=maph*TILESIZE-ystop;
+    int focusx=g.hero->x;
+    int focusy=g.hero->y;
+    g.cameradstx=focusx-focusx%xstop;
+    g.cameradsty=focusy-focusy%ystop;
+    if (g.cameradstx<0) g.cameradstx=0; else if (g.cameradstx>xlimit) g.cameradstx=xlimit;
+    if (g.cameradsty<0) g.cameradsty=0; else if (g.cameradsty>ylimit) g.cameradsty=ylimit;
+    if (g.camerax<g.cameradstx) {
+      if ((g.camerax+=PAN_SPEED)>=g.cameradstx) g.camerax=g.cameradstx;
+    } else if (g.camerax>g.cameradstx) {
+      if ((g.camerax-=PAN_SPEED)<=g.cameradstx) g.camerax=g.cameradstx;
+    }
+    if (g.cameray<g.cameradsty) {
+      if ((g.cameray+=PAN_SPEED)>=g.cameradsty) g.cameray=g.cameradsty;
+    } else if (g.cameray>g.cameradsty) {
+      if ((g.cameray-=PAN_SPEED)<=g.cameradsty) g.cameray=g.cameradsty;
+    }
   }
   
   /* Drop defunct sprites.
