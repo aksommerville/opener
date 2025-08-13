@@ -21,6 +21,7 @@
 
 #define SPRITE_LIMIT 64 /* in the whole world */
 #define HEROPATH_LIMIT 64 /* Takes roughly 10 frames to cross one meter, so the 4-meter parade should fit easily in 64. */
+#define DLOGTEXT_LIMIT 128
 
 extern const unsigned int palette[16]; // 8 (bg,fg) pairs.
 extern const int mapw,maph;
@@ -53,6 +54,16 @@ extern struct g {
   
   // Key sprites idenitifed at the start of each game_update. All are WEAK and OPTIONAL.
   struct sprite *hero;
+  
+  // MODE_DIALOGUE
+  char dlogtext[DLOGTEXT_LIMIT];
+  int dlogtextp; // How many characters rendered.
+  int dlogtextc; // How many total.
+  double dlogclock; // Counts down to next advancement of dlogtextp.
+  int dlogframe;
+  double dloganimclock;
+  int dlogsrcx,dlogsrcy;
+  uint32_t dlogbg,dlogfg;
 } g;
 
 #define SFX(tag) sh_ms(SFX_##tag,sizeof(SFX_##tag)-1);
@@ -62,6 +73,7 @@ extern struct g {
 #define SONG_across_the_scrubby_moors "\x01"
 // Sounds, you provide the entire message: 0x01,noteida 0..63,noteidz 0..63,level 0..31,duration 16ms
 #define SFX_uimotion "\x01\x20\x30\x08\x05"
+#define SFX_typewriter "\x01\x18\x18\x02\x01"
 
 /* Draw text into a 32-bit framebuffer.
  * (dstx,dsty) is the top-left corner of the first glyph.
@@ -82,6 +94,13 @@ void game_update(double elapsed);
 void game_render();
 
 struct sprite *sprite_spawn(const struct sprite_type *type,int x,int y,uint32_t arg);
+
+/* Enter MODE_DIALOGUE. We line-break the given text and store it in (g.dlogtext).
+ * Source image is two frames of 15x17 in graphics.
+ */
+void begin_dialogue(const char *src,int srcc,int srcx,int srcy,uint32_t bg,uint32_t fg);
+void dialogue_update(double elapsed);
+void dialogue_render();
 
 /* stdlib functions that we either get from real libc, or main.c implements them for web.
  */

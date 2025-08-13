@@ -27,8 +27,11 @@ static void _moonsong_update(struct sprite *sprite,double elapsed) {
  
 static void _moonsong_collide(struct sprite *sprite) {
   if (LOOSEFRAMEC>=4) {
-    fprintf(stderr,"%s:%d: %s\n",__FILE__,__LINE__,__func__);
-    //TODO Dialogue.
+    //TODO Different messages for each animal count, and end game if 4.
+    begin_dialogue(
+      "Liberate the \x0c(ff0)four\x0c() animals and bring them here!\n"
+      "You can do it!"
+    ,-1,0,24,0x00000000,0xffe592d0);
   }
   LOOSEFRAMEC=0;
 }

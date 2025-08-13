@@ -56,7 +56,7 @@ I'll be doing (GDEX Jam 2025)[https://itch.io/jam/gdex-game-jam-2025] at the sam
 - - [ ] Need a few more. And also some hidden ones.
 - [ ] Animals to rescue.
 - [ ] Game over. Win only, you play until you win or give up.
-- [ ] Dialogue.
+- [x] Dialogue.
 - [ ] Proper maps and graphics.
 - [x] Hello modal.
 - [ ] Music.

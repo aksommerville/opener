@@ -86,7 +86,6 @@ int shm_init() {
 
 /* Update.
  */
- static int slomo=0;//XXX
 
 void shm_update(double elapsed) {
 
@@ -105,11 +104,8 @@ void shm_update(double elapsed) {
         ui_menu_update(&g.menu,elapsed);
         ui_newsfeed_update(&g.newsfeed,elapsed);
       } break;
-    case MODE_PLAY: {
-        //if (slomo) slomo--; else { slomo=10;
-        game_update(elapsed);
-        //}
-      } break;
+    case MODE_PLAY: game_update(elapsed); break;
+    case MODE_DIALOGUE: dialogue_update(elapsed); break;
     default: g.mode=MODE_HELLO;
   }
   if (pvmode!=g.mode) goto _reupdate_;
@@ -126,9 +122,8 @@ void shm_update(double elapsed) {
         ui_menu_render(&g.fbimg,&g.menu);
         ui_newsfeed_render(&g.fbimg,&g.newsfeed);
       } break;
-    case MODE_PLAY: {
-        game_render();
-      } break;
+    case MODE_PLAY: game_render(); break;
+    case MODE_DIALOGUE: dialogue_render(); break;
   }
   sh_fb(g.fb,FBW,FBH);
 }
