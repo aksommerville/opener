@@ -11,7 +11,7 @@ int game_reset() {
   g.spritec=0;
   g.camerax=0;
   g.cameray=0;
-  if (!(g.hero=sprite_spawn(&sprite_type_hero,80,40,0))) return -1;
+  if (!(g.hero=sprite_spawn(&sprite_type_hero,32,18,0))) return -1;
   sprite_spawn(&sprite_type_animal, 24,48,0x00);//XXX TEMP
   sprite_spawn(&sprite_type_animal, 24,16,0x05);//XXX TEMP
   sprite_spawn(&sprite_type_animal, 80,48,0x0a);//XXX TEMP

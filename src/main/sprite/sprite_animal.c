@@ -34,7 +34,8 @@ static int _animal_init(struct sprite *sprite) {
         sprite->fg=0xff137bd9;
       } break;
   }
-  HEROPATHD=-6*(ORDER+1)-4;
+  //HEROPATHD=-6*(ORDER+1)-4;
+  HEROPATHD=-9*(ORDER+1)-1;
   return 0;
 }
 

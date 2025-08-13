@@ -55,6 +55,8 @@ static inline int sprite_rendercmp(const struct sprite *a,const struct sprite *b
  */
 int sprite_rectify(struct sprite *sprite,int dx,int dy);
 
+int tile_is_solid(uint8_t tile);
+
 extern const struct sprite_type sprite_type_dummy;
 extern const struct sprite_type sprite_type_hero;
 extern const struct sprite_type sprite_type_animal;

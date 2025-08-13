@@ -55,9 +55,15 @@ static void _hero_update(struct sprite *sprite,double elapsed) {
       ANIMCLOCK+=0.200;
       if (++(ANIMFRAME)>=4) ANIMFRAME=0;
     }
-    sprite->x+=indx;
-    sprite->y+=indy;
-    sprite_rectify(sprite,indx,indy);
+    // Advance and rectify each axis independently. If we did them together, toe-stubbing would be a real and unsolveable problem.
+    if (indx) {
+      sprite->x+=indx;
+      sprite_rectify(sprite,indx,0);
+    }
+    if (indy) {
+      sprite->y+=indy;
+      sprite_rectify(sprite,0,indy);
+    }
     // If there was significant motion, say >1mm, update g.heropath.
     int pvp=g.heropathp-1;
     if (pvp<0) pvp+=HEROPATH_LIMIT;

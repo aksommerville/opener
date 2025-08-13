@@ -8,7 +8,7 @@ ifneq (,$(strip $(filter clean,$(MAKECMDGOALS))))
 clean:;rm -rf mid out
 else
 
-PROJNAME:=shoveldemo
+PROJNAME:=opener
 
 SRCFILES:=$(shell find src -type f)
 
