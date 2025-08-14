@@ -109,8 +109,10 @@ function parseModel(src) {
   let token;
   try {
     while (token = tokenizer.next()) {
-      if (token !== "const") throw new Error(`Top level statement must begin 'const' (found ${JSON.stringify(token)})`);
-      token = tokenizer.next();
+      //if (token !== "const") throw new Error(`Top level statement must begin 'const' (found ${JSON.stringify(token)})`);
+      if (token === "const") {
+        token = tokenizer.next();
+      }
       if (token === "unsigned") token = tokenizer.next();
       switch (token) {
         case "int": case "char": case "short": break;
@@ -141,7 +143,12 @@ function parseModel(src) {
           default: throw new Error(`oops, k=${JSON.stringify(k)}`);
         }
       } else if (expectUninitialized) {
-        // Key then semicolon.
+        // Key, open bracket, an optional length that we don't care about, close bracket.
+        token = tokenizer.next();
+        if (token !== "[") throw new Error(`Expected "[" before ${JSON.stringify(token)}`);
+        token = tokenizer.next();
+        if (isident(token.charCodeAt(0))) token = tokenizer.next();
+        if (token !== "]") throw new Error(`Expected "]" before ${JSON.stringify(token)}`);
       } else {
         token = tokenizer.next();
         // All members must have an initializer.
@@ -169,7 +176,6 @@ function onOpen(event) {
   file.text().then(src => {
     originalText = src;
     parseModel(src);
-    console.log(`Acquired file`, { originalText, palette, mapw, maph, map_data });
     render();
     renderPalette();
   });
@@ -230,9 +236,10 @@ function onSave() {
     }
     
     // It's a declaration. Validate, yoink the key, and skip thru the semicolon.
-    if (token !== "const") throw new Error(`Expected "const", found ${JSON.stringify(token)}`);
     tokenizer.includeSpace = false;
-    token = tokenizer.next();
+    if (token === "const") {
+      token = tokenizer.next();
+    }
     if (token === "unsigned") token = tokenizer.next();
     switch (token) {
       case "int": case "char": case "short": break;

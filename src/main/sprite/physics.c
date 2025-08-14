@@ -4,7 +4,7 @@
  */
  
 int tile_is_solid(uint8_t tileid) {
-  return tileid; // For now, only a natural zero is passable. Not sure if that will hold forever.
+  return (tileid&0x1f); // The all-background tile (0) is passable, regardless of its color. All others are solid.
 }
 
 /* Adjust sprite position to escape some other rectangle.

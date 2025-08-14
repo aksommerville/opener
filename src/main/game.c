@@ -27,6 +27,7 @@ int game_reset() {
   sprite_spawn(&sprite_type_key,88*TILESIZE,50*TILESIZE,0);
   sprite_spawn(&sprite_type_key,60*TILESIZE, 2*TILESIZE,0);
   sprite_spawn(&sprite_type_key,35*TILESIZE,12*TILESIZE,0);
+  //sprite_spawn(&sprite_type_clown,);
   
   /* It shouldn't matter, but initialize (heropath) with the current position.
    * Shouldn't matter because you don't start with any animals, by the time you find one, we'll have repopulated the path.

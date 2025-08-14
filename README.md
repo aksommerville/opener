@@ -39,7 +39,7 @@ I'll be doing (GDEX Jam 2025)[https://itch.io/jam/gdex-game-jam-2025] at the sam
 - [ ] Enemies.
 - [ ] Combat: Shoot enemies with your wand and they are disabled until you leave the room.
 - [ ] Damage: No death. Full Moon style, getting hit interrupts and pushes you.
-- [ ] Proper maps and graphics.
+- [x] Proper maps and graphics.
 - [ ] Sound effects.
 - [ ] genioc_main.c:genioc_store_load,genioc_store_save: Implement if we need, and copy back to shovel.
 - [ ] Eliminate AUX1-to-quit before release. (and provide a friendlier option).
@@ -49,3 +49,5 @@ I'll be doing (GDEX Jam 2025)[https://itch.io/jam/gdex-game-jam-2025] at the sam
 - [ ] Repair songs. (long notes, and notes out of range, etc)
 - [ ] Persist selection of sound and music enable.
 - [ ] Give Moon a face and hair, and do that for both witches at gameover.
+- [x] Make a bridge over the river. Will force a physics change, having passable non-zero tiles.
+- [ ] Can I make the animals say "key" when you try to open the cage without a key?
