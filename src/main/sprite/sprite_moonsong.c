@@ -51,6 +51,7 @@ static void _moonsong_collide(struct sprite *sprite) {
           ,-1,0,24,0x00000000,0xffe592d0);
         } break;
       case 4: {
+          SONG(rinky_dink)
           begin_dialogue(
             "TODO: Game over. " __FILE__
           ,-1,0,24,0x00000000,0xffe592d0);

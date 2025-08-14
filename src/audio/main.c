@@ -12,9 +12,14 @@
 
 extern const int across_the_scrubby_moors_len;
 extern const unsigned char across_the_scrubby_moors[];
+extern const int circus_of_the_night_len;
+extern const unsigned char circus_of_the_night[];
+extern const int rinky_dink_len;
+extern const unsigned char rinky_dink[];
 
 static float buffer[1024];
 static int songid=0;
+static int songrepeat=1;
 static int enable_sound=1;
 static int enable_song=1;
 
@@ -34,12 +39,15 @@ static void play_song(int id) {
   if (id==songid) return;
   const void *src=0;
   int srcc=0;
+  songrepeat=1;
   switch (songid=id) {
-    #define _(id,tag) case id: src=tag; srcc=tag##_len; break;
-    _(1,across_the_scrubby_moors)
+    #define _(id,tag,r) case id: src=tag; srcc=tag##_len; songrepeat=r; break;
+    _(1,across_the_scrubby_moors,1)
+    _(2,circus_of_the_night,1)
+    _(3,rinky_dink,0)
     #undef _
   }
-  if (enable_song) synmin_song(src,srcc,0,1);
+  if (enable_song) synmin_song(src,srcc,0,songrepeat);
 }
  
 void sha_update(int framec) {

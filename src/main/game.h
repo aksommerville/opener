@@ -74,6 +74,8 @@ extern struct g {
 // Songs are listed in src/audio/main.c. Tags are the stem of the original file name.
 #define SONG_none "\x00"
 #define SONG_across_the_scrubby_moors "\x01"
+#define SONG_circus_of_the_night "\x02"
+#define SONG_rinky_dink "\x03"
 // Sounds, you provide the entire message: 0x01,noteida 0..63,noteidz 0..63,level 0..31,duration 16ms
 #define SFX_uimotion "\x01\x20\x30\x08\x05"
 #define SFX_typewriter "\x01\x18\x18\x04\x01"

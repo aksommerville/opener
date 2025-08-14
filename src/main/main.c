@@ -65,7 +65,7 @@ int shm_init() {
   
   if (1) {
     g.mode=MODE_HELLO;
-    SONG(none)
+    SONG(circus_of_the_night)
   } else { // TEMP: Launch right into game.
     if (game_reset()<0) return -1;
     g.mode=MODE_PLAY;
