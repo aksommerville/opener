@@ -51,7 +51,7 @@ Refined agenda for the home stretch:
 - [ ] Eliminate AUX1-to-quit before release. (and provide a friendlier option).
 - [ ] `evdev_shovel_glue.c`: Still have hard-coded devices. Implement general mapping and copy back to shovel. (native only, so not a big deal).
 - [ ] I'm going to want a fullscreen toggle too. (xegl)
-- [ ] Newly-liberated animals should walk to the path, don't snap to it until you've reached your place for the first time.
+- [x] Newly-liberated animals should walk to the path, don't snap to it until you've reached your place for the first time.
 - [ ] Repair songs. (long notes, and notes out of range, etc)
 - [ ] Persist selection of sound and music enable.
 - [ ] Give Moon a face and hair, and do that for both witches at gameover.
