@@ -8,12 +8,14 @@ Dot rescues the circus animals.
 I'm thinking Zelda-style adventure, with 1-bit graphics (coloring per tile at compositing).
 I've already made the bare-minimum 1-bit renderer and square-only synth for Shovel, and want to try using those.
 LowRez doesn't have a size limit, but it would amuse me to stay under 16 kB for the web package (`64*64*4`, the size of LowRez's framebuffer limit).
+UPDATE: I blasted past 16 kB already, and really who cares.
 
 ## Building
 
- - Tweak `config.mk` to suit your environment, see comments there.
+ - Tweak `local/config.mk` to suit your environment, see comments there.
  - Linux: You'll need PulseAudio and xegl (you probably already have them).
- - Web: No tools necessary to build, but you'll need npm `http-server` to run it. Can't run over file protocol.
+ - Web: No tools necessary to build*, but you'll need npm `http-server` to run it. Can't run over file protocol.
+ - [*] except a wasm-capable `clang`, that's not negotiable!
  - `make run` for native or `make serve` for web, or just `make` to build everything.
  
 ## Agenda
@@ -34,32 +36,10 @@ I'll be doing (GDEX Jam 2025)[https://itch.io/jam/gdex-game-jam-2025] at the sam
 
 ## TODO
 
-- [x] Using a 3x5 font, so store them glyphwise in 16 bits each.
-- [x] Map format and loader.
-- - [x] Change it to use just one map, and scroll freely.
-- [x] Map editor.
-- [x] Render maps.
-- [x] Sprites, generically.
-- [x] Transitions. XXX just one map.
-- [x] Try locking the camera until you approach the edge, and slide to positions not an entire screen apart.
-- - Stop should be a factor of (84,41). Um. 41 is prime. Bump world to (100,51).
-- - XXX There just isn't enough screen for that.
-- - [x] But what if we did it based on entire screens?
-- - - Yes I prefer this.
-- [x] Hero movement, collisions, trigger transitions.
 - [ ] Enemies.
 - [ ] Combat: Shoot enemies with your wand and they are disabled until you leave the room.
 - [ ] Damage: No death. Full Moon style, getting hit interrupts and pushes you.
-- [x] Spell casting. ...no need, we're doing keys to open the cages, and a simple attack.
-- - [x] Spell of Opening
-- - [x] Spell of Slumber
-- - [x] Need a few more. And also some hidden ones.
-- [x] Animals to rescue.
-- [x] Game over. Win only, you play until you win or give up.
-- [x] Dialogue.
 - [ ] Proper maps and graphics.
-- [x] Hello modal.
-- [x] Music.
 - [ ] Sound effects.
 - [ ] genioc_main.c:genioc_store_load,genioc_store_save: Implement if we need, and copy back to shovel.
 - [ ] Eliminate AUX1-to-quit before release. (and provide a friendlier option).
@@ -68,3 +48,4 @@ I'll be doing (GDEX Jam 2025)[https://itch.io/jam/gdex-game-jam-2025] at the sam
 - [ ] Newly-liberated animals should walk to the path, don't snap to it until you've reached your place for the first time.
 - [ ] Repair songs. (long notes, and notes out of range, etc)
 - [ ] Persist selection of sound and music enable.
+- [ ] Give Moon a face and hair, and do that for both witches at gameover.
