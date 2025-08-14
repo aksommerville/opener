@@ -10,6 +10,8 @@ int game_reset() {
   g.spritec=0;
   g.camerax=0;
   g.cameray=0;
+  g.key=0;
+  g.animalc=0;
   memcpy(map,map_data,mapw*maph);
   
   /* Create the initial sprites.
@@ -36,6 +38,9 @@ int game_reset() {
     pathpos->y=g.hero->y;
   }
   g.heropathp=0;
+  
+  // XXX Temporary hacks while developing.
+  //g.animalc=4; // Qualify to end game. (NB marching animals will all look like Dot)
   
   return 0;
 }
@@ -101,10 +106,6 @@ void game_update(double elapsed) {
     if (sprite==g.hero) continue;
     sprite->type->update(sprite,elapsed);
   }
-  
-  /* Global update logic.
-   */
-  //TODO termination
   
   /* Select a new camera position, if there's a hero.
    * No hero, whatever, leave it wherever it is.

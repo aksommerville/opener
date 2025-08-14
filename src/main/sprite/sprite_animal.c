@@ -7,7 +7,7 @@
 
 #define ANIMFRAME sprite->iv[0]
 #define HEROPATHD sprite->iv[1] /* -HEROPATH_LIMIT..-1 */
-#define ORDER sprite->iv[2] /* 0..3, which position in line */
+#define ORDER sprite->iv[2] /* 0..3, which position in line. Don't move; gameover reads this too. */
 #define ANIMCLOCK sprite->fv[0]
 
 #define WALKSPEED 7.5 /* m/s */
@@ -106,21 +106,6 @@ static void _animal_update(struct sprite *sprite,double elapsed) {
   if (hpp<0) hpp+=HEROPATH_LIMIT;
   targetx=g.heropath[hpp].x;
   targety=g.heropath[hpp].y;
-  if (0&&g.hero) {
-    int hdx=0,hdy=0;
-    switch (g.hero->iv[2]) { // WALKDIR
-      case 0x80: hdx=-1; hdy=-1; break;
-      case 0x40: hdy=-1; break;
-      case 0x20: hdx=1; hdy=-1; break;
-      case 0x10: hdx=-1; break;
-      case 0x08: hdx=1; break;
-      case 0x04: hdx=-1; hdy=1; break;
-      case 0x02: hdy=1; break;
-      case 0x01: hdx=1; hdy=1; break;
-    }
-    targetx=g.hero->x-hdx*2.250*(ORDER+1.0);
-    targety=g.hero->y-hdy*2.250*(ORDER+1.0);
-  }
   int dx=targetx-sprite->x;
   int dy=targety-sprite->y;
   if (dx||dy) {

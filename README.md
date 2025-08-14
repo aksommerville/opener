@@ -50,12 +50,12 @@ I'll be doing (GDEX Jam 2025)[https://itch.io/jam/gdex-game-jam-2025] at the sam
 - [ ] Enemies.
 - [ ] Combat: Shoot enemies with your wand and they are disabled until you leave the room.
 - [ ] Damage: No death. Full Moon style, getting hit interrupts and pushes you.
-- [ ] Spell casting.
-- - [ ] Spell of Opening
-- - [ ] Spell of Slumber
-- - [ ] Need a few more. And also some hidden ones.
+- [x] Spell casting. ...no need, we're doing keys to open the cages, and a simple attack.
+- - [x] Spell of Opening
+- - [x] Spell of Slumber
+- - [x] Need a few more. And also some hidden ones.
 - [x] Animals to rescue.
-- [ ] Game over. Win only, you play until you win or give up.
+- [x] Game over. Win only, you play until you win or give up.
 - [x] Dialogue.
 - [ ] Proper maps and graphics.
 - [x] Hello modal.
@@ -67,3 +67,4 @@ I'll be doing (GDEX Jam 2025)[https://itch.io/jam/gdex-game-jam-2025] at the sam
 - [ ] I'm going to want a fullscreen toggle too. (xegl)
 - [ ] Newly-liberated animals should walk to the path, don't snap to it until you've reached your place for the first time.
 - [ ] Repair songs. (long notes, and notes out of range, etc)
+- [ ] Persist selection of sound and music enable.

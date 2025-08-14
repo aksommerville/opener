@@ -18,6 +18,7 @@
 #define MODE_HELLO 1
 #define MODE_PLAY 2
 #define MODE_DIALOGUE 3
+#define MODE_GAMEOVER 4
 
 #define SPRITE_LIMIT 64 /* in the whole world */
 #define HEROPATH_LIMIT 64 /* Takes roughly 10 frames to cross one meter, so the 4-meter parade should fit easily in 64. */
@@ -67,6 +68,9 @@ extern struct g {
   double dloganimclock;
   int dlogsrcx,dlogsrcy;
   uint32_t dlogbg,dlogfg;
+  
+  // MODE_GAMEOVER
+  double gameover_clock;
 } g;
 
 #define SFX(tag) sh_ms(SFX_##tag,sizeof(SFX_##tag)-1);
@@ -108,6 +112,10 @@ struct sprite *sprite_spawn(const struct sprite_type *type,int x,int y,uint32_t 
 void begin_dialogue(const char *src,int srcc,int srcx,int srcy,uint32_t bg,uint32_t fg);
 void dialogue_update(double elapsed);
 void dialogue_render();
+
+void gameover_begin();
+void gameover_update(double elapsed);
+void gameover_render();
 
 /* stdlib functions that we either get from real libc, or main.c implements them for web.
  */

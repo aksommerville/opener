@@ -63,13 +63,8 @@ int shm_init() {
   g.music_enable=1;//TODO persist, and if initially zero, notify audio thread
   g.sound_enable=1;
   
-  if (1) {
-    g.mode=MODE_HELLO;
-    SONG(circus_of_the_night)
-  } else { // TEMP: Launch right into game.
-    if (game_reset()<0) return -1;
-    g.mode=MODE_PLAY;
-  }
+  g.mode=MODE_HELLO;
+  SONG(circus_of_the_night)
   
   g.menu.dsty=22;
   ui_menu_add(&g.menu,"Play",4,0xffffffff,cb_play);
@@ -106,9 +101,13 @@ void shm_update(double elapsed) {
       } break;
     case MODE_PLAY: game_update(elapsed); break;
     case MODE_DIALOGUE: dialogue_update(elapsed); break;
+    case MODE_GAMEOVER: gameover_update(elapsed); break;
     default: g.mode=MODE_HELLO;
   }
-  if (pvmode!=g.mode) goto _reupdate_;
+  if (pvmode!=g.mode) {
+    g.pvinput=g.input;
+    goto _reupdate_;
+  }
   
   // Render.
   switch (g.mode) {
@@ -124,6 +123,7 @@ void shm_update(double elapsed) {
       } break;
     case MODE_PLAY: game_render(); break;
     case MODE_DIALOGUE: dialogue_render(); break;
+    case MODE_GAMEOVER: gameover_render(); break;
   }
   sh_fb(g.fb,FBW,FBH);
 }
