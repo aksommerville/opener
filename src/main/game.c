@@ -12,6 +12,7 @@ int game_reset() {
   g.cameray=0;
   g.key=0;
   g.animalc=0;
+  g.framec=0;
   memcpy(map,map_data,mapw*maph);
   
   /* Create the initial sprites.
@@ -27,7 +28,13 @@ int game_reset() {
   sprite_spawn(&sprite_type_key,88*TILESIZE,50*TILESIZE,0);
   sprite_spawn(&sprite_type_key,60*TILESIZE, 2*TILESIZE,0);
   sprite_spawn(&sprite_type_key,35*TILESIZE,12*TILESIZE,0);
-  //sprite_spawn(&sprite_type_clown,);
+  sprite_spawn(&sprite_type_clown,13*TILESIZE,22*TILESIZE,0);
+  sprite_spawn(&sprite_type_clown,18*TILESIZE,40*TILESIZE,0);
+  sprite_spawn(&sprite_type_clown,54*TILESIZE,50*TILESIZE,0);
+  sprite_spawn(&sprite_type_clown,61*TILESIZE,41*TILESIZE,0);
+  sprite_spawn(&sprite_type_clown,92*TILESIZE,41*TILESIZE,0);
+  sprite_spawn(&sprite_type_clown,75*TILESIZE,23*TILESIZE,0);
+  sprite_spawn(&sprite_type_clown,69*TILESIZE, 5*TILESIZE,0);
   
   /* It shouldn't matter, but initialize (heropath) with the current position.
    * Shouldn't matter because you don't start with any animals, by the time you find one, we'll have repopulated the path.
@@ -81,6 +88,7 @@ struct sprite *sprite_spawn(const struct sprite_type *type,int x,int y,uint32_t 
  */
  
 void game_update(double elapsed) {
+  g.framec++;
 
   /* Locate the key sprites.
    */
@@ -90,6 +98,12 @@ void game_update(double elapsed) {
   for (;i-->0;sprite++) {
     if (sprite->defunct) continue;
     if (sprite->type==&sprite_type_hero) g.hero=sprite;
+  }
+  
+  /* Poll input.
+   */
+  if ((g.input&SH_BTN_SOUTH)&&!(g.pvinput&SH_BTN_SOUTH)) {
+    if (g.hero) sprite_hero_shoot_fireball(g.hero);
   }
   
   /* If there's a hero sprite, she updates in advance of the others.
@@ -168,8 +182,8 @@ void game_render() {
       for (i=g.spritec-1;i-->1;) {
         if (sprite_rendercmp(g.spritev+i,g.spritev+i-1)<0) {
           struct sprite tmp=g.spritev[i];
-          g.spritev[i]=g.spritev[i+1];
-          g.spritev[i+1]=tmp;
+          g.spritev[i]=g.spritev[i-1];
+          g.spritev[i-1]=tmp;
         }
       }
     }

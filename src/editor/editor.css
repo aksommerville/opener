@@ -9,12 +9,14 @@ body {
   margin: 0;
   width: 100vw;
   height: 100vh;
+  overflow: hidden;
 }
 
 .toolbar {
   display: flex;
   flex-direction: row;
   border-bottom: 1px solid #000;
+  height: 20px;
 }
 
 .tattle {
@@ -29,6 +31,8 @@ canvas#visual {
   flex: 1;
   image-rendering: pixelated;
   object-fit: contain;
+  max-width: 100vw;
+  max-height: calc(100vh - 20px);
 }
 
 dialog.palette {

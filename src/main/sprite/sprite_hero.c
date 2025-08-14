@@ -3,7 +3,9 @@
 #define FACEDX sprite->iv[0]
 #define ANIMFRAME sprite->iv[1]
 #define WALKDIR sprite->iv[2] /* 0x80..0x01, last direction walking. NB read by animals. */
+#define INJUREDX sprite->iv[3]
 #define ANIMCLOCK sprite->fv[0]
+#define FIRECLOCK sprite->fv[1]
 
 #define WALKSPEED 7.5 /* m/s */
 
@@ -23,29 +25,50 @@ static int _hero_init(struct sprite *sprite) {
  
 static void _hero_update(struct sprite *sprite,double elapsed) {
 
+  /* If we're being injured, pay that out.
+   */
+  if (INJUREDX<0) {
+    INJUREDX++;
+    sprite->x--;
+    sprite_rectify(sprite,-1,0);
+  } else if (INJUREDX>0) {
+    INJUREDX--;
+    sprite->x++;
+    sprite_rectify(sprite,1,0);
+  }
+  
+  /* Tick down FIRECLOCK.
+   */
+  if (FIRECLOCK>0.0) {
+    if ((FIRECLOCK-=elapsed)<=0.0) {
+    }
+  }
+
   /* Transform input state to two signed axes.
    * If she's pressing left or right, face that direction. We don't have up or down graphics.
    */
   int indx=0,indy=0;
-  switch (g.input&(SH_BTN_LEFT|SH_BTN_RIGHT)) {
-    case SH_BTN_LEFT: FACEDX=indx=-1; break;
-    case SH_BTN_RIGHT: FACEDX=indx=1; break;
-  }
-  switch (g.input&(SH_BTN_UP|SH_BTN_DOWN)) {
-    case SH_BTN_UP: indy=-1; break;
-    case SH_BTN_DOWN: indy=1; break;
-  }
-  if (indy<0) {
-    if (indx<0) WALKDIR=0x80;
-    else if (!indx) WALKDIR=0x40;
-    else WALKDIR=0x20;
-  } else if (!indy) {
-    if (indx<0) WALKDIR=0x10;
-    else if (indx>0) WALKDIR=0x08;
-  } else {
-    if (indx<0) WALKDIR=0x04;
-    else if (!indx) WALKDIR=0x02;
-    else WALKDIR=0x01;
+  if (!INJUREDX&&(FIRECLOCK<=0.0)) {
+    switch (g.input&(SH_BTN_LEFT|SH_BTN_RIGHT)) {
+      case SH_BTN_LEFT: FACEDX=indx=-1; break;
+      case SH_BTN_RIGHT: FACEDX=indx=1; break;
+    }
+    switch (g.input&(SH_BTN_UP|SH_BTN_DOWN)) {
+      case SH_BTN_UP: indy=-1; break;
+      case SH_BTN_DOWN: indy=1; break;
+    }
+    if (indy<0) {
+      if (indx<0) WALKDIR=0x80;
+      else if (!indx) WALKDIR=0x40;
+      else WALKDIR=0x20;
+    } else if (!indy) {
+      if (indx<0) WALKDIR=0x10;
+      else if (indx>0) WALKDIR=0x08;
+    } else {
+      if (indx<0) WALKDIR=0x04;
+      else if (!indx) WALKDIR=0x02;
+      else WALKDIR=0x01;
+    }
   }
   
   /* Animate if walking, reset the animation clock if not.
@@ -65,19 +88,22 @@ static void _hero_update(struct sprite *sprite,double elapsed) {
       sprite->y+=indy;
       sprite_rectify(sprite,0,indy);
     }
-    // If there was significant motion, say >1mm, update g.heropath.
-    int pvp=g.heropathp-1;
-    if (pvp<0) pvp+=HEROPATH_LIMIT;
-    int dx=sprite->x-g.heropath[pvp].x;
-    int dy=sprite->y-g.heropath[pvp].y;
-    if (dx||dy) {
-      g.heropath[g.heropathp].x=sprite->x;
-      g.heropath[g.heropathp].y=sprite->y;
-      if (++(g.heropathp)>=HEROPATH_LIMIT) g.heropathp=0;
-    }
   } else {
     ANIMCLOCK=0.0;
     ANIMFRAME=0;
+  }
+  
+  /* If there was motion, update heropath.
+   * This accounts for both fireball damage and regular walking.
+   */
+  int pvp=g.heropathp-1;
+  if (pvp<0) pvp+=HEROPATH_LIMIT;
+  int dx=sprite->x-g.heropath[pvp].x;
+  int dy=sprite->y-g.heropath[pvp].y;
+  if (dx||dy) {
+    g.heropath[g.heropathp].x=sprite->x;
+    g.heropath[g.heropathp].y=sprite->y;
+    if (++(g.heropathp)>=HEROPATH_LIMIT) g.heropathp=0;
   }
 }
 
@@ -96,19 +122,49 @@ static void _hero_render(struct sprite *sprite,int x,int y) {
   int dstx=x-TILESIZE;
   int dsty=y-TILESIZE;
   uint8_t bodytile=0x04;
-  switch (ANIMFRAME) {
+  if (FIRECLOCK>0.0) {
+    bodytile=0x07;
+  } else switch (ANIMFRAME) {
     case 1: bodytile+=1; break;
     case 3: bodytile+=2; break;
   }
-  rtile(dstx,dsty,bodytile,0xffa02050,xform); // body and hat
-  rtile(dstx,dsty,0x08,0xffa0c0f0,xform); // face
-  rtile(dstx,dsty,0x09,0xff1010c0,xform); // hair
+  uint32_t overcolor=0;
+  if (INJUREDX) overcolor=0xffffffff;
+  rtile(dstx,dsty,bodytile,overcolor?overcolor:0xffa02050,xform); // body and hat
+  rtile(dstx,dsty,0x08,overcolor?overcolor:0xffa0c0f0,xform); // face
+  rtile(dstx,dsty,0x09,overcolor?overcolor:0xff1010c0,xform); // hair
   if (g.key) {
     int kdstx=dstx;
     if (xform) kdstx-=6;
     else kdstx+=6;
     rtile(kdstx,dsty,0x0e,0xff00ffff,xform);
   }
+}
+
+/* Injure.
+ */
+ 
+static void _hero_injure(struct sprite *sprite,struct sprite *assailant) {
+  if (assailant->xform&R1B_XFORM_XREV) {
+    INJUREDX=-8;
+  } else {
+    INJUREDX=8;
+  }
+  SFX(injure)
+}
+
+/* Shoot fireball.
+ */
+ 
+void sprite_hero_shoot_fireball(struct sprite *sprite) {
+  if (FIRECLOCK>0.0) return;
+  if (INJUREDX) return;
+  struct sprite *fireball=sprite_spawn(&sprite_type_fireball,sprite->x,sprite->y,0);
+  if (!fireball) return;
+  fireball->iv[0]=2;
+  fireball->xform=sprite->xform;
+  FIRECLOCK=0.500;
+  SFX(fireball)
 }
 
 /* Type definition.
@@ -119,4 +175,5 @@ const struct sprite_type sprite_type_hero={
   .init=_hero_init,
   .update=_hero_update,
   .render=_hero_render,
+  .injure=_hero_injure,
 };

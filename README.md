@@ -33,14 +33,20 @@ I'll be doing (GDEX Jam 2025)[https://itch.io/jam/gdex-game-jam-2025] at the sam
  - 2025-08-16T23:00 SAT: Aim to be finished with the game (not ancillary materials).
  - 2025-08-17T06:00 SUN: Itch page, etc.
  - 2025-08-17T16:00 SUN: LowRez ends.
+ 
+Refined agenda for the home stretch:
+ - 2025-08-14 THU: Combat.
+ - 2025-08-15 FRI: Combat continued.
+ - 2025-08-16 SAT: Cleanup.
+ - 2025-08-17 SUN: Itch page, test, submit by noon.
 
 ## TODO
 
-- [ ] Enemies.
-- [ ] Combat: Shoot enemies with your wand and they are disabled until you leave the room.
-- [ ] Damage: No death. Full Moon style, getting hit interrupts and pushes you.
+- [x] Enemies.
+- [x] Combat: Shoot enemies with your wand and they are disabled until you leave the room.
+- [x] Damage: No death. Full Moon style, getting hit interrupts and pushes you.
 - [x] Proper maps and graphics.
-- [ ] Sound effects.
+- [x] Sound effects.
 - [ ] genioc_main.c:genioc_store_load,genioc_store_save: Implement if we need, and copy back to shovel.
 - [ ] Eliminate AUX1-to-quit before release. (and provide a friendlier option).
 - [ ] `evdev_shovel_glue.c`: Still have hard-coded devices. Implement general mapping and copy back to shovel. (native only, so not a big deal).
@@ -51,3 +57,4 @@ I'll be doing (GDEX Jam 2025)[https://itch.io/jam/gdex-game-jam-2025] at the sam
 - [ ] Give Moon a face and hair, and do that for both witches at gameover.
 - [x] Make a bridge over the river. Will force a physics change, having passable non-zero tiles.
 - [ ] Can I make the animals say "key" when you try to open the cage without a key?
+- [ ] Experiment with the water tile, it doesn't look very watery right now.

@@ -45,6 +45,11 @@ struct sprite_type {
   /* Called for non-hero solid sprites when the hero collides against them.
    */
   void (*collide)(struct sprite *sprite);
+  
+  /* Must implement to react to fireball.
+   * (assailant) is the fireball.
+   */
+  void (*injure)(struct sprite *sprite,struct sprite *assailant);
 };
 
 static inline int sprite_rendercmp(const struct sprite *a,const struct sprite *b) {
@@ -68,5 +73,8 @@ extern const struct sprite_type sprite_type_animal;
 extern const struct sprite_type sprite_type_moonsong;
 extern const struct sprite_type sprite_type_key;
 extern const struct sprite_type sprite_type_clown;
+extern const struct sprite_type sprite_type_fireball;
+
+void sprite_hero_shoot_fireball(struct sprite *sprite);
 
 #endif

@@ -55,6 +55,7 @@ extern struct g {
   int heropathp; // Position of the oldest entry. She's most recently at p-1. Advances only when the hero moves.
   int animalc; // 0..4
   int key; // 0..1, doesn't matter which
+  int framec;
   
   // Key sprites idenitifed at the start of each game_update. All are WEAK and OPTIONAL.
   struct sprite *hero;
@@ -85,6 +86,9 @@ extern struct g {
 #define SFX_typewriter "\x01\x18\x18\x04\x01"
 #define SFX_getkey "\x01\x30\x3c\x0c\x10"
 #define SFX_unlock "\x01\x2c\x38\x0c\x10"
+#define SFX_injure "\x01\x20\x1c\x10\x10"
+#define SFX_hurtclown "\x01\x20\x1c\x08\x08"
+#define SFX_fireball "\x01\x38\x3c\x10\x08"
 
 /* Draw text into a 32-bit framebuffer.
  * (dstx,dsty) is the top-left corner of the first glyph.
