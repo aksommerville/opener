@@ -42,19 +42,9 @@ Refined agenda for the home stretch:
 
 ## TODO
 
-- [x] Enemies.
-- [x] Combat: Shoot enemies with your wand and they are disabled until you leave the room.
-- [x] Damage: No death. Full Moon style, getting hit interrupts and pushes you.
-- [x] Proper maps and graphics.
-- [x] Sound effects.
 - [ ] genioc_main.c:genioc_store_load,genioc_store_save: Implement if we need, and copy back to shovel.
 - [ ] Eliminate AUX1-to-quit before release. (and provide a friendlier option).
 - [ ] `evdev_shovel_glue.c`: Still have hard-coded devices. Implement general mapping and copy back to shovel. (native only, so not a big deal).
 - [ ] I'm going to want a fullscreen toggle too. (xegl)
-- [x] Newly-liberated animals should walk to the path, don't snap to it until you've reached your place for the first time.
 - [ ] Repair songs. (long notes, and notes out of range, etc)
 - [ ] Persist selection of sound and music enable.
-- [x] Give Moon a face and hair, and do that for both witches at gameover.
-- [x] Make a bridge over the river. Will force a physics change, having passable non-zero tiles.
-- [ ] Can I make the animals say "key" when you try to open the cage without a key?
-- [ ] Experiment with the water tile, it doesn't look very watery right now.

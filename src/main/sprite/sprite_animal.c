@@ -9,6 +9,7 @@
 #define HEROPATHD sprite->iv[1] /* -HEROPATH_LIMIT..-1 */
 #define ORDER sprite->iv[2] /* 0..3, which position in line. Don't move; gameover reads this too. */
 #define ANIMCLOCK sprite->fv[0]
+#define ADVICE sprite->fv[1]
 
 #define WALKSPEED 7.5 /* m/s */
 
@@ -45,8 +46,7 @@ static int _animal_init(struct sprite *sprite) {
  
 static void animal_check_unlock(struct sprite *sprite) {
 
-  // Must have a key, and animal and hero must be on the same screen.
-  if (!g.key) return;
+  // Animal and hero must be on the same screen.
   int myscreenx=sprite->x/(TILESIZE*COLC);
   int heroscreenx=g.hero->x/(TILESIZE*COLC);
   if (myscreenx!=heroscreenx) return;
@@ -60,21 +60,25 @@ static void animal_check_unlock(struct sprite *sprite) {
   int row=g.hero->y/TILESIZE;
   if ((row<0)||(row>=maph)) return;
   uint8_t tileid=map[row*mapw+col];
-  if ((tileid==0x18)||(tileid==0x14)) {
-    SFX(unlock)
-    uint8_t *mrow=map+myscreeny*mapw*ROWC+myscreenx*COLC;
-    int yi=ROWC;
-    for (;yi-->0;mrow+=mapw) {
-      uint8_t *mp=mrow;
-      int xi=COLC;
-      for (;xi-->0;mp++) {
-        if ((*mp==0x18)||(*mp==0x14)) *mp=0x00;
+  if ((tileid==0x18)||(tileid==0x14)) { // Bars...
+    if (g.key) {
+      SFX(unlock)
+      uint8_t *mrow=map+myscreeny*mapw*ROWC+myscreenx*COLC;
+      int yi=ROWC;
+      for (;yi-->0;mrow+=mapw) {
+        uint8_t *mp=mrow;
+        int xi=COLC;
+        for (;xi-->0;mp++) {
+          if ((*mp==0x18)||(*mp==0x14)) *mp=0x00;
+        }
       }
+      g.key=0;
+      g.animalc++;
+      ORDER=g.animalc;
+      HEROPATHD=-9*ORDER-1;
+    } else {
+      ADVICE=1.000;
     }
-    g.key=0;
-    g.animalc++;
-    ORDER=g.animalc;
-    HEROPATHD=-9*ORDER-1;
   }
 }
 
@@ -82,6 +86,10 @@ static void animal_check_unlock(struct sprite *sprite) {
  */
  
 static void _animal_update(struct sprite *sprite,double elapsed) {
+
+  if (ADVICE>0.0) {
+    ADVICE-=elapsed;
+  }
 
   /* When ORDER is zero, we're still in the cage.
    * Face the hero and check for unlocking -- unlock is effected here.
@@ -138,6 +146,29 @@ static void _animal_update(struct sprite *sprite,double elapsed) {
   }
 }
 
+/* Render.
+ * We only need custom for the "key" word bubble.
+ * The main bit is exactly the generic renderer.
+ */
+ 
+static void _animal_render(struct sprite *sprite,int x,int y) {
+  int srcx=(sprite->tileid&15)*(TILESIZE<<1);
+  int srcy=(sprite->tileid>>4)*(TILESIZE<<1);
+  r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,x-TILESIZE,y-TILESIZE,srcx,srcy,TILESIZE<<1,TILESIZE<<1,sprite->bg,sprite->fg,sprite->xform);
+  if (ADVICE>0.0) {
+    r1b_img32_blit_img1(
+      &g.fbimg,&g.img_graphics,
+      x-5,y-15,30,29,10,10,
+      0,0xffc0c0c0,0
+    );
+    r1b_img32_blit_img1(
+      &g.fbimg,&g.img_graphics,
+      x-4,y-14,104,1,8,5,
+      0,0xff0080a0,0
+    );
+  }
+}
+
 /* Type definition.
  */
  
@@ -145,4 +176,5 @@ const struct sprite_type sprite_type_animal={
   .name="animal",
   .init=_animal_init,
   .update=_animal_update,
+  .render=_animal_render,
 };
