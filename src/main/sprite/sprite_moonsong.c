@@ -58,6 +58,17 @@ static void _moonsong_collide(struct sprite *sprite) {
   LOOSEFRAMEC=0;
 }
 
+/* Render.
+ */
+ 
+static void _moonsong_render(struct sprite *sprite,int x,int y) {
+  int dstx=x-TILESIZE;
+  int dsty=y-TILESIZE;
+  r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,dstx,dsty,32,0,8,8,0,0xffe592d0,0);
+  r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,dstx,dsty,64,0,8,8,0,0xff40c0f0,0);
+  r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,dstx,dsty,72,0,8,8,0,0xff802010,0);
+}
+
 /* Type definition.
  */
  
@@ -66,4 +77,5 @@ const struct sprite_type sprite_type_moonsong={
   .init=_moonsong_init,
   .update=_moonsong_update,
   .collide=_moonsong_collide,
+  .render=_moonsong_render,
 };

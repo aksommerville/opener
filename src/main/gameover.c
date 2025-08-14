@@ -6,6 +6,7 @@
 static struct marcher {
   int srcx,srcy; // All marchers have two walking frames right of this.
   uint32_t xbgr;
+  uint32_t face,hair; // Extra colors for the witches. If zero, nothing renders.
 } marcherv[MARCHER_COUNT];
 
 /* Begin.
@@ -24,7 +25,12 @@ void gameover_begin() {
     marcher->srcy=0;
     marcher->xbgr=0xffa02050;
   }
-  marcherv[0].xbgr=0xffe592d0; // Moon.
+  marcherv[0].xbgr=0xffe592d0; // Moon...
+  marcherv[0].face=0xff40c0f0;
+  marcherv[0].hair=0xff802010;
+  marcherv[1].xbgr=0xffa02050; // Dot...
+  marcherv[1].face=0xffa0c0f0;
+  marcherv[1].hair=0xff1010c0;
   struct sprite *sprite=g.spritev;
   for (i=g.spritec;i-->0;sprite++) {
     if (sprite->type!=&sprite_type_animal) continue;
@@ -81,6 +87,8 @@ void gameover_render() {
     for (;i-->0;x+=9,marcher++) {
       int srcx=marcher->srcx+frame*8;
       r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,x,14,srcx,marcher->srcy,8,8,0,marcher->xbgr,R1B_XFORM_XREV);
+      if (marcher->face) r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,x,14,64,0,8,8,0,marcher->face,R1B_XFORM_XREV);
+      if (marcher->hair) r1b_img32_blit_img1(&g.fbimg,&g.img_graphics,x,14,72,0,8,8,0,marcher->hair,R1B_XFORM_XREV);
     }
   }
   

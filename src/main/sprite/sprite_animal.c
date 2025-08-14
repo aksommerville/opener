@@ -113,8 +113,6 @@ static void _animal_update(struct sprite *sprite,double elapsed) {
     else if (dx<0) sprite->x-=1;
     if (dy>0) sprite->y+=1;
     else if (dy<0) sprite->y-=1;
-    //sprite->x+=dx;
-    //sprite->y+=dy;
     walking=1;
     if (dx<0) sprite->xform=R1B_XFORM_XREV;
     else if (dx>0) sprite->xform=0;

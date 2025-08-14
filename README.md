@@ -54,7 +54,7 @@ Refined agenda for the home stretch:
 - [x] Newly-liberated animals should walk to the path, don't snap to it until you've reached your place for the first time.
 - [ ] Repair songs. (long notes, and notes out of range, etc)
 - [ ] Persist selection of sound and music enable.
-- [ ] Give Moon a face and hair, and do that for both witches at gameover.
+- [x] Give Moon a face and hair, and do that for both witches at gameover.
 - [x] Make a bridge over the river. Will force a physics change, having passable non-zero tiles.
 - [ ] Can I make the animals say "key" when you try to open the cage without a key?
 - [ ] Experiment with the water tile, it doesn't look very watery right now.
