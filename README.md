@@ -42,11 +42,6 @@ Refined agenda for the home stretch:
 
 ## TODO
 
-- [ ] genioc_main.c:genioc_store_load,genioc_store_save: Implement if we need, and copy back to shovel.
-- [ ] Eliminate AUX1-to-quit before release. (and provide a friendlier option).
 - [ ] `evdev_shovel_glue.c`: Still have hard-coded devices. Implement general mapping and copy back to shovel. (native only, so not a big deal).
 - [ ] I'm going to want a fullscreen toggle too. (xegl)
-- [x] Repair songs. (long notes, and notes out of range, etc)
-- [ ] Persist selection of sound and music enable.
 - [ ] Hand-draw the inner bit for the itch cover.
-- [x] Slide into place if you near-miss a corner.

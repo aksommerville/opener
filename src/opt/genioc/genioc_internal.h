@@ -4,6 +4,7 @@
 #include "genioc.h"
 #include "shovel/shovel.h"
 #include "opt/io/io.h"
+#include "opt/fs/fs.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

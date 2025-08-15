@@ -10,7 +10,7 @@ int init_images();
 void shm_quit(int status) {
 }
 
-/* Menu callbacks (TEMP?)
+/* Menu callbacks.
  */
  
 static void cb_play(struct ui_menu_option *option) {
@@ -32,6 +32,7 @@ static void cb_music(struct ui_menu_option *option) {
   }
   const unsigned char msg[]={0x04,g.music_enable};
   sh_ms(msg,sizeof(msg));
+  settings_save();
 }
  
 static void cb_sound(struct ui_menu_option *option) {
@@ -48,6 +49,7 @@ static void cb_sound(struct ui_menu_option *option) {
   }
   const unsigned char msg[]={0x03,g.sound_enable};
   sh_ms(msg,sizeof(msg));
+  settings_save();
 }
  
 static void cb_quit(struct ui_menu_option *option) {
@@ -60,8 +62,19 @@ static void cb_quit(struct ui_menu_option *option) {
 int shm_init() {
   if (init_images()<0) return -1;
   
-  g.music_enable=1;//TODO persist, and if initially zero, notify audio thread
-  g.sound_enable=1;
+  /* Load settings.
+   * If music or sound is disabled, tell the audio thread.
+   * No need to transmit if enabled; that's the default.
+   */
+  settings_load();
+  if (!g.music_enable) {
+    const unsigned char msg[]={0x04,0};
+    sh_ms(msg,sizeof(msg));
+  }
+  if (!g.sound_enable) {
+    const unsigned char msg[]={0x03,0};
+    sh_ms(msg,sizeof(msg));
+  }
   
   g.mode=MODE_HELLO;
   SONG(circus_of_the_night)
@@ -69,7 +82,7 @@ int shm_init() {
   g.menu.dsty=22;
   ui_menu_add(&g.menu,"Play",4,0xffffffff,cb_play);
   ui_menu_add(&g.menu,g.music_enable?"Music: ON":"Music: OFF",-1,0xffffff00,cb_music);
-  ui_menu_add(&g.menu,g.sound_enable?"Sound: ON":"Music: OFF",-1,0xffffff00,cb_sound);
+  ui_menu_add(&g.menu,g.sound_enable?"Sound: ON":"Sound: OFF",-1,0xffffff00,cb_sound);
   ui_menu_add(&g.menu,"Quit",4,0xff0000ff,cb_quit);
   
   g.newsfeed.dsty=29;
@@ -88,7 +101,8 @@ void shm_update(double elapsed) {
   g.pvinput=g.input;
   g.input=sh_in(0);
   if (g.input!=g.pvinput) {
-    if ((g.input&SH_BTN_AUX1)&&!(g.pvinput&SH_BTN_AUX1)) sh_term(0);
+    // AUX1 for hard quit. Don't leave this enabled in prod, people will hit it by mistake.
+    //if ((g.input&SH_BTN_AUX1)&&!(g.pvinput&SH_BTN_AUX1)) sh_term(0);
   }
   
   // Update per mode, and if mode changes, update again.

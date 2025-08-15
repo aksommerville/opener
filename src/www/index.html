@@ -123,7 +123,6 @@ function zs(p) {
   let c=0;
   while ((p + c < mem.length) && (c < 256) && mem[p + c]) c++;
   return td.decode(new Uint8Array(mem.buffer, mem.byteOffset + p, c));
-  return "";
 }
 function rs(p, c) {
   if ((p < 0) || (c < 0) || (p > mem.length - c)) return "";
@@ -139,7 +138,7 @@ function ws(p, a, s) {
   return cpc;
 }
 function sh_sg(vp, va, kp, kc) {
-  return ws(vp, va, localStorage.getItem(rs(kp, kc)));
+  return ws(vp, va, localStorage.getItem(rs(kp, kc)) || "");
 }
 function sh_ss(kp, kc, vp, vc) {
   localStorage.setItem(rs(kp, kc), rs(vp, vc));

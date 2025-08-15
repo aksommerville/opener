@@ -121,6 +121,9 @@ void gameover_begin();
 void gameover_update(double elapsed);
 void gameover_render();
 
+void settings_load();
+void settings_save();
+
 /* stdlib functions that we either get from real libc, or main.c implements them for web.
  */
 #if USE_web

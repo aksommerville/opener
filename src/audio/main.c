@@ -48,8 +48,9 @@ static void play_song(int id) {
     #undef _
   }
   if (enable_song) synmin_song(src,srcc,0,songrepeat);
+  else synmin_song(0,0,0,0);
 }
- 
+
 void sha_update(int framec) {
   unsigned char msg[256];
   int msgc;
