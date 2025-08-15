@@ -20,6 +20,62 @@ static int _hero_init(struct sprite *sprite) {
   return 0;
 }
 
+/* Bump 'n Slide, correct the off-axis toward a cell boundary if that direction looks passable.
+ * Called after walking fails. Not called for injury motion.
+ */
+ 
+static void hero_bumpnslide(struct sprite *sprite,int dx,int dy) {
+
+  int position; // (sprite->x,y), the one we might correct.
+  if (dx) position=sprite->y;
+  else if (dy) position=sprite->x;
+  else return; // why did you call us?
+  int mod=position%TILESIZE;
+  int cd; // Which direction to correct it (-1,1).
+  if (!mod) return;
+  if (mod<TILESIZE>>1) cd=-1;
+  else if (mod>TILESIZE>>1) cd=1;
+  else return;
+  
+  /* There are two cells that we care about.
+   * If they're both passable, bump it.
+   */
+  int ax,ay,bx,by;
+  if (dx<0) {
+    ax=bx=(sprite->x-TILESIZE-1)/TILESIZE;
+    ay=(sprite->y-TILESIZE)/TILESIZE;
+    if (cd>0) ay++;
+    by=ay+1;
+  } else if (dx>0) {
+    ax=bx=(sprite->x+TILESIZE)/TILESIZE;
+    ay=(sprite->y-TILESIZE)/TILESIZE;
+    if (cd>0) ay++;
+    by=ay+1;
+  } else if (dy<0) {
+    ax=(sprite->x-TILESIZE)/TILESIZE;
+    if (cd>0) ax++;
+    bx=ax+1;
+    ay=by=(sprite->y-TILESIZE-1)/TILESIZE;
+  } else if (dy>0) {
+    ax=(sprite->x-TILESIZE)/TILESIZE;
+    if (cd>0) ax++;
+    bx=ax+1;
+    ay=by=(sprite->y+TILESIZE)/TILESIZE;
+  } else return;
+  
+  if ((ax<0)||(ax>=mapw)) return;
+  if ((ay<0)||(ay>=maph)) return;
+  if ((bx<0)||(bx>=mapw)) return;
+  if ((by<0)||(by>=maph)) return;
+  if (tile_is_solid(map[ay*mapw+ax])) return;
+  if (tile_is_solid(map[by*mapw+bx])) return;
+  
+  int cdx=0,cdy=0;
+  if (dx) { sprite->y+=cd; cdx=cd; }
+  else { sprite->x+=cd; cdy=cd; }
+  sprite_rectify(sprite,cdx,cdy);
+}
+
 /* Update.
  */
  
@@ -82,11 +138,11 @@ static void _hero_update(struct sprite *sprite,double elapsed) {
     // Advance and rectify each axis independently. If we did them together, toe-stubbing would be a real and unsolveable problem.
     if (indx) {
       sprite->x+=indx;
-      sprite_rectify(sprite,indx,0);
+      if (sprite_rectify(sprite,indx,0)&&!indy) hero_bumpnslide(sprite,indx,0);
     }
     if (indy) {
       sprite->y+=indy;
-      sprite_rectify(sprite,0,indy);
+      if (sprite_rectify(sprite,0,indy)&&!indx) hero_bumpnslide(sprite,0,indy);
     }
   } else {
     ANIMCLOCK=0.0;

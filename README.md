@@ -49,4 +49,4 @@ Refined agenda for the home stretch:
 - [x] Repair songs. (long notes, and notes out of range, etc)
 - [ ] Persist selection of sound and music enable.
 - [ ] Hand-draw the inner bit for the itch cover.
-- [ ] Slide into place if you near-miss a corner.
+- [x] Slide into place if you near-miss a corner.
