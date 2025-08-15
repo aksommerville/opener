@@ -46,5 +46,7 @@ Refined agenda for the home stretch:
 - [ ] Eliminate AUX1-to-quit before release. (and provide a friendlier option).
 - [ ] `evdev_shovel_glue.c`: Still have hard-coded devices. Implement general mapping and copy back to shovel. (native only, so not a big deal).
 - [ ] I'm going to want a fullscreen toggle too. (xegl)
-- [ ] Repair songs. (long notes, and notes out of range, etc)
+- [x] Repair songs. (long notes, and notes out of range, etc)
 - [ ] Persist selection of sound and music enable.
+- [ ] Hand-draw the inner bit for the itch cover.
+- [ ] Slide into place if you near-miss a corner.

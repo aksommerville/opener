@@ -77,7 +77,7 @@ static void animal_check_unlock(struct sprite *sprite) {
       ORDER=g.animalc;
       HEROPATHD=-9*ORDER-1;
     } else {
-      ADVICE=1.000;
+      ADVICE=0.250; // The timing doesn't really matter, it gets spammed to this while you stand in position, then lingers this long.
     }
   }
 }
