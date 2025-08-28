@@ -20,5 +20,4 @@ UPDATE: I blasted past 16 kB already, and really who cares.
 
 ## TODO
 
-- [ ] `evdev_shovel_glue.c`: Still have hard-coded devices. Implement general mapping and copy back to shovel. (native only, so not a big deal).
-- [ ] I'm going to want a fullscreen toggle too. (xegl)
+- [ ] I'm going to want a fullscreen toggle. (xegl)
