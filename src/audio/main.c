@@ -10,6 +10,8 @@
 #include "shovel/shovel.h"
 #include "opt/synmin/synmin.h"
 
+#define GLOBAL_TRIM 0.400
+
 extern const int across_the_scrubby_moors_len;
 extern const unsigned char across_the_scrubby_moors[];
 extern const int circus_of_the_night_len;
@@ -91,7 +93,7 @@ void sha_update(int framec) {
     mavgv[mavgp]=adj;
     mavg+=adj;
     if (++mavgp>=MAVG_LEN) mavgp=0;
-    *v=mavg;
+    *v=mavg*GLOBAL_TRIM;
   }
 }
 

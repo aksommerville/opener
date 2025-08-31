@@ -102,7 +102,7 @@ void shm_update(double elapsed) {
   g.input=sh_in(0);
   if (g.input!=g.pvinput) {
     // AUX1 for hard quit. Don't leave this enabled in prod, people will hit it by mistake.
-    //if ((g.input&SH_BTN_AUX1)&&!(g.pvinput&SH_BTN_AUX1)) sh_term(0);
+    if ((g.input&SH_BTN_AUX1)&&!(g.pvinput&SH_BTN_AUX1)) sh_term(0);
   }
   
   // Update per mode, and if mode changes, update again.
